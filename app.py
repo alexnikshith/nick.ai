@@ -259,9 +259,9 @@ st.markdown("""
         display: none !important;
     }
     
-    /* --- SURGICAL RESET FOR CLOUD PARITY --- */
-    div[data-testid="stBottomBlockContainer"], 
-    div[data-testid="stBottom"],
+    /* --- REVERT TO ORIGINAL SIMPLE PILL DESIGN --- */
+    [data-testid="stBottomBlockContainer"], 
+    [data-testid="stBottom"],
     footer {
         background-color: #000000 !important;
         background: #000000 !important;
@@ -269,36 +269,18 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    /* Target the Chat Input Wrapper */
     div[data-testid="stChatInput"] {
         background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        outline: none !important;
-        padding-bottom: 0 !important;
+        max-width: 850px !important; /* Force a neat width */
+        margin: 0 auto !important;   /* Center it perfectly */
     }
 
-    /* Target the Inner Box (The one with the gray background) */
     div[data-testid="stChatInput"] > div {
         background-color: #262626 !important;
-        border: none !important;
-        border-radius: 20px !important;
-        box-shadow: none !important;
-    }
-
-    /* Target the Textarea itself */
-    textarea[data-testid="stChatInputTextArea"] {
-        background-color: transparent !important;
-        color: #FFFFFF !important;
-        border: none !important;
-        outline: none !important;
-    }
-
-    /* Target the Send Button */
-    [data-testid="stChatInput"] button {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 30px !important;
     }
     
     /* Transparent Mic & Tools buttons */
