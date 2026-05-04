@@ -140,6 +140,8 @@ st.set_page_config(page_title="Local AI ChatGPT Clone", page_icon="⚡", layout=
 if "current_chat_id" not in st.session_state:
     st.session_state.current_chat_id = str(uuid.uuid4())
     st.session_state.chat_title = "New chat"
+    st.session_state.chat_project = "General"
+    st.session_state.chat_pinned = False
     st.session_state.messages = []
 if "search_query" not in st.session_state:
     st.session_state.search_query = ""
@@ -733,9 +735,10 @@ with st.sidebar:
                     st.session_state.current_chat_id = chat['id']
                     st.session_state.chat_title = loaded_data.get('title', 'New chat')
                     st.session_state.chat_project = loaded_data.get('project', 'General')
+                    st.session_state.chat_pinned = loaded_data.get('pinned', False)
                     # Update timestamp on open so it moves to top of recents
                     save_chat(chat['id'], st.session_state.chat_title, st.session_state.messages, 
-                              project=st.session_state.chat_project, pinned=is_pinned)
+                              project=st.session_state.chat_project, pinned=st.session_state.chat_pinned)
                     st.rerun()
         
         with c2:
@@ -753,11 +756,14 @@ with st.sidebar:
                 # 1.5 Pin/Unpin
                 pin_label = "Unpin Chat" if is_pinned else "Pin Chat"
                 if st.button(pin_label, key=f"pin_{chat['id']}", use_container_width=True):
-                    # Pass the EXISTING timestamp so it doesn't jump to the top
+                    new_pin_state = not is_pinned
+                    # Pass the EXISTING timestamp so it doesn't jump to the top unless you want it to
                     save_chat(chat['id'], chat['title'], chat['messages'], 
                               project=chat.get('project', 'General'), 
-                              pinned=not is_pinned,
+                              pinned=new_pin_state,
                               updated_at=chat.get('updated_at'))
+                    if st.session_state.current_chat_id == chat['id']:
+                        st.session_state.chat_pinned = new_pin_state
                     st.rerun()
                 
                 # 2. Share
@@ -851,7 +857,8 @@ with col2:
 if st.session_state.get("pending_rename"):
     new_name = st.session_state.pop("pending_rename")
     st.session_state.chat_title = new_name
-    save_chat(st.session_state.current_chat_id, new_name, st.session_state.messages)
+    save_chat(st.session_state.current_chat_id, new_name, st.session_state.messages, 
+              project=st.session_state.chat_project, pinned=st.session_state.chat_pinned)
     st.toast(f"Renamed to '{new_name}'")
     st.rerun()
 
@@ -934,7 +941,8 @@ with st.popover("➕"):
                     st.session_state.chat_title = generate_title(voice_text)
                 
                 # Save immediately to update timestamp and ensure it shows in sidebar
-                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, st.session_state.chat_project)
+                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, 
+                          project=st.session_state.chat_project, pinned=st.session_state.chat_pinned)
                     
                 st.rerun()
             else:
@@ -961,7 +969,8 @@ if prompt := st.chat_input("Ask anything..."):
         st.session_state.chat_title = generate_title(prompt)
     
     # Save immediately to update timestamp and ensure it shows in sidebar
-    save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, st.session_state.chat_project)
+    save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, 
+              project=st.session_state.chat_project, pinned=st.session_state.chat_pinned)
     
     st.rerun()
 
@@ -1069,7 +1078,8 @@ if st.session_state.get('ai_processing', False):
         """, unsafe_allow_html=True)
         
         st.session_state.messages.append({"role": "assistant", "content": full_response})
-        save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, st.session_state.chat_project)
+        save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, 
+                  project=st.session_state.chat_project, pinned=st.session_state.chat_pinned)
         st.session_state.ai_processing = False
         st.rerun()
 
