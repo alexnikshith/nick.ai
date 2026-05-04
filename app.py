@@ -269,25 +269,18 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    /* Force the send button to stay INSIDE the pill on the RIGHT */
+    /* Fix send button vertical centering - pinned to right, centered vertically */
+    [data-testid="stChatInputSubmitButton"] {
+        position: absolute !important;
+        right: 10px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        bottom: auto !important;
+    }
+
+    /* Ensure the container is relatively positioned */
     [data-testid="stChatInput"] > div {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        border-radius: 30px !important;
-        padding-right: 8px !important;
-    }
-
-    [data-testid="stChatInput"] > div > textarea {
-        flex: 1 !important;
-    }
-
-    /* Send button stays on the right, vertically centered */
-    [data-testid="stChatInput"] button[kind="primaryFormSubmit"],
-    [data-testid="stChatInput"] button {
-        flex-shrink: 0 !important;
-        align-self: center !important;
-        border-radius: 50% !important;
+        position: relative !important;
     }
 
     /* Transparent Mic & Tools buttons */
