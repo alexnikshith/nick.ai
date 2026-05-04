@@ -259,7 +259,7 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Force Bottom Area to be Pitch Black (Local Match) */
+    /* --- SURGICAL RESET FOR CLOUD PARITY --- */
     div[data-testid="stBottomBlockContainer"], 
     div[data-testid="stBottom"],
     footer {
@@ -268,13 +268,35 @@ st.markdown("""
         border: none !important;
         box-shadow: none !important;
     }
-    
-    div[data-testid="stChatInput"],
-    div[data-testid="stChatInput"] > div,
-    div[data-testid="stChatInput"] > div > div,
+
+    /* Target the Chat Input Wrapper */
+    div[data-testid="stChatInput"] {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+        padding-bottom: 0 !important;
+    }
+
+    /* Target the Inner Box (The one with the gray background) */
+    div[data-testid="stChatInput"] > div {
+        background-color: #262626 !important;
+        border: none !important;
+        border-radius: 20px !important;
+        box-shadow: none !important;
+    }
+
+    /* Target the Textarea itself */
+    textarea[data-testid="stChatInputTextArea"] {
+        background-color: transparent !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        outline: none !important;
+    }
+
+    /* Target the Send Button */
     [data-testid="stChatInput"] button {
         background-color: transparent !important;
-        background: transparent !important;
         border: none !important;
         box-shadow: none !important;
     }
