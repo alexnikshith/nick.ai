@@ -259,16 +259,18 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Fix for Streamlit Cloud input bar shadow/background - AGGRESSIVE */
-    div[data-testid="stChatInput"], 
-    div[data-testid="stChatInput"] > div,
-    div[data-testid="stBottomBlockContainer"],
-    footer,
-    [data-testid="stBottom"] {
-        background-color: transparent !important;
-        background: transparent !important;
+    /* Force Bottom Area to be Pitch Black (Local Match) */
+    div[data-testid="stBottomBlockContainer"], 
+    div[data-testid="stBottom"],
+    footer {
+        background-color: #000000 !important;
+        background: #000000 !important;
         border: none !important;
         box-shadow: none !important;
+    }
+    
+    div[data-testid="stChatInput"] {
+        background-color: transparent !important;
     }
     
     /* Transparent Mic & Tools buttons */
