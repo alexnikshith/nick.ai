@@ -269,23 +269,11 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    /* Position send button vertically centered next to the bar */
-    [data-testid="stChatInput"] {
-        position: relative !important;
-    }
-
-    [data-testid="stChatInputSubmitButton"] {
-        position: absolute !important;
-        top: 50% !important;
-        right: 12px !important;
-        transform: translateY(-50%) !important;
-        bottom: auto !important;
-        left: auto !important;
-    }
-
-    /* Add right padding so button doesn't cover typed text */
-    textarea[data-testid="stChatInputTextArea"] {
-        padding-right: 55px !important;
+    /* Custom chat form layout */
+    #chat-form-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     /* Transparent Mic & Tools buttons */
@@ -409,28 +397,54 @@ st.markdown("""
         margin-left: 0.3rem;
         font-size: 1rem;
     }
-    /* Make room inside the chat input for the Tools button */
-    div[data-testid="stChatInput"] {
-        background-color: transparent !important;
-        padding-bottom: 0.8rem;
-        border: none !important;
-        box-shadow: none !important;
+    /* Custom chat form styling */
+    div[data-testid="stBottom"] {
+        background-color: #000000 !important;
+        padding: 0.5rem 1rem 1rem !important;
     }
-    div[data-testid="stChatInput"] > div {
+
+    /* Hide the default form border/submit button styling */
+    [data-testid="stForm"] {
         border: none !important;
-        box-shadow: none !important;
+        padding: 0 !important;
+        background: transparent !important;
     }
-    div[data-testid="stChatInput"] textarea {
-        background-color: #121212 !important;
-        border: 1px solid #333333 !important;
-        border-radius: 1rem !important;
+
+    /* Textarea styling */
+    [data-testid="stChatInputCustom"] textarea,
+    .custom-chat-textarea textarea {
+        background-color: #2F2F2F !important;
+        border: 1px solid #4D4D4F !important;
+        border-radius: 1.2rem !important;
         color: white !important;
-        padding: 1rem !important;
+        padding: 0.75rem 1rem !important;
+        resize: none !important;
         transition: border-color 0.3s, box-shadow 0.3s;
     }
-    div[data-testid="stChatInput"] textarea:focus {
-        border-color: #BB86FC !important;
-        box-shadow: 0 0 10px rgba(187, 134, 252, 0.2) !important;
+    .custom-chat-textarea textarea:focus {
+        border-color: #8E8EA0 !important;
+        box-shadow: none !important;
+    }
+
+    /* Send button: tight, icon-only, rounded */
+    .custom-send-btn button {
+        background-color: #ffffff !important;
+        border: none !important;
+        border-radius: 0.8rem !important;
+        color: #000000 !important;
+        font-size: 1.1rem !important;
+        height: 42px !important;
+        width: 42px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        cursor: pointer !important;
+        transition: background 0.2s !important;
+    }
+    .custom-send-btn button:hover {
+        background-color: #e0e0e0 !important;
     }
     
     /* Sidebar Branding (Fixed Header) - Forced to Top */
@@ -537,17 +551,7 @@ st.markdown("""
         border: 1px solid rgba(187, 134, 252, 0.2) !important;
         border-top-right-radius: 0.2rem !important;
     }
-    div[data-testid="stChatInput"] textarea {
-        background-color: #2F2F2F !important;
-        border: 1px solid #4D4D4F !important;
-        border-radius: 1.2rem !important;
-        color: white !important;
-        padding: 1rem !important;
-    }
-    div[data-testid="stChatInput"] textarea:focus {
-        border-color: #8E8EA0 !important;
-        box-shadow: none !important;
-    }
+
 
     /* CUSTOM CHAT BUBBLES - REFINED & COMPACT */
     .chat-bubble {
@@ -889,16 +893,29 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 
 
-# Native User Input (Stays at the bottom)
-if prompt := st.chat_input("Ask anything..."):
-    # Add to messages immediately to prevent vanishing
-    st.session_state.messages.append({"role": "user", "content": prompt})
+# Custom Chat Input: textarea + send button as true side-by-side siblings
+with st.form(key="chat_form", clear_on_submit=True):
+    col_input, col_btn = st.columns([0.92, 0.08])
+    with col_input:
+        st.markdown('<div class="custom-chat-textarea">', unsafe_allow_html=True)
+        prompt = st.text_area(
+            label="",
+            placeholder="Ask anything...",
+            height=52,
+            label_visibility="collapsed",
+            key="chat_input_box",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
+    with col_btn:
+        st.markdown('<div class="custom-send-btn">', unsafe_allow_html=True)
+        submitted = st.form_submit_button("↑")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+if submitted and prompt and prompt.strip():
+    st.session_state.messages.append({"role": "user", "content": prompt.strip()})
     st.session_state.ai_processing = True
-    
-    # Generate title for new chats
     if len(st.session_state.messages) <= 2:
-        st.session_state.chat_title = generate_title(prompt)
-    
+        st.session_state.chat_title = generate_title(prompt.strip())
     st.rerun()
 
 # Trigger AI response
