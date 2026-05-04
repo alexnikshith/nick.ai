@@ -268,7 +268,27 @@ st.markdown("""
         border-top: none !important;
         box-shadow: none !important;
     }
-    
+
+    /* Force the send button to stay INSIDE the pill */
+    [data-testid="stChatInput"] {
+        border-radius: 30px !important;
+        overflow: hidden !important;
+    }
+
+    [data-testid="stChatInput"] > div {
+        display: flex !important;
+        align-items: center !important;
+        border-radius: 30px !important;
+    }
+
+    /* Send button styling - keep it inside */
+    [data-testid="stChatInput"] button[kind="primaryFormSubmit"],
+    [data-testid="stChatInput"] button {
+        position: relative !important;
+        border-radius: 50% !important;
+        margin-right: 4px !important;
+    }
+
     /* Transparent Mic & Tools buttons */
     .input-mic button, .input-tools button {
         background-color: transparent !important;
