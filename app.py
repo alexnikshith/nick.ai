@@ -729,9 +729,13 @@ with st.sidebar:
             if st.button(f"{pin_icon}{short_title}", key=f"btn_{chat['id']}", use_container_width=True):
                 loaded_data = load_chat(chat['id'])
                 if loaded_data:
-                    st.session_state.current_chat_id = loaded_data['id']
-                    st.session_state.chat_title = loaded_data['title']
-                    st.session_state.messages = loaded_data['messages']
+                    st.session_state.messages = loaded_data.get('messages', [])
+                    st.session_state.current_chat_id = chat['id']
+                    st.session_state.chat_title = loaded_data.get('title', 'New chat')
+                    st.session_state.chat_project = loaded_data.get('project', 'General')
+                    # Update timestamp on open so it moves to top of recents
+                    save_chat(chat['id'], st.session_state.chat_title, st.session_state.messages, 
+                              project=st.session_state.chat_project, pinned=is_pinned)
                     st.rerun()
         
         with c2:
@@ -928,6 +932,9 @@ with st.popover("➕"):
                 # Generate title for new chats
                 if len(st.session_state.messages) <= 2:
                     st.session_state.chat_title = generate_title(voice_text)
+                
+                # Save immediately to update timestamp and ensure it shows in sidebar
+                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, st.session_state.chat_project)
                     
                 st.rerun()
             else:
@@ -952,6 +959,10 @@ if prompt := st.chat_input("Ask anything..."):
     st.session_state.ai_processing = True
     if len(st.session_state.messages) <= 2:
         st.session_state.chat_title = generate_title(prompt)
+    
+    # Save immediately to update timestamp and ensure it shows in sidebar
+    save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, st.session_state.chat_project)
+    
     st.rerun()
 
 # Trigger AI response
