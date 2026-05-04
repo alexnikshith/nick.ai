@@ -259,7 +259,7 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Keep bottom area black */
+    /* Bottom area - pure black */
     [data-testid="stBottomBlockContainer"], 
     [data-testid="stBottom"],
     footer {
@@ -269,19 +269,11 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    /* Give the pill enough right padding to fit the send button inside */
+    /* Input pill exact color match */
     [data-testid="stChatInput"] > div {
-        position: relative !important;
-        padding-right: 52px !important;
-    }
-
-    /* Keep the button absolutely positioned but inside the pill boundary */
-    [data-testid="stChatInputSubmitButton"] {
-        position: absolute !important;
-        right: 8px !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        bottom: auto !important;
+        background-color: #1E1E1E !important;
+        border-radius: 20px !important;
+        border: 1px solid rgba(255,255,255,0.07) !important;
     }
 
     /* Transparent Mic & Tools buttons */
