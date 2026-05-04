@@ -269,18 +269,19 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    /* Fix send button vertical centering - pinned to right, centered vertically */
+    /* Give the pill enough right padding to fit the send button inside */
+    [data-testid="stChatInput"] > div {
+        position: relative !important;
+        padding-right: 52px !important;
+    }
+
+    /* Keep the button absolutely positioned but inside the pill boundary */
     [data-testid="stChatInputSubmitButton"] {
         position: absolute !important;
-        right: 10px !important;
+        right: 8px !important;
         top: 50% !important;
         transform: translateY(-50%) !important;
         bottom: auto !important;
-    }
-
-    /* Ensure the container is relatively positioned */
-    [data-testid="stChatInput"] > div {
-        position: relative !important;
     }
 
     /* Transparent Mic & Tools buttons */
