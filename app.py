@@ -259,7 +259,7 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Bottom area - pure black */
+    /* Keep bottom area black */
     [data-testid="stBottomBlockContainer"], 
     [data-testid="stBottom"],
     footer {
@@ -267,13 +267,6 @@ st.markdown("""
         background: #000000 !important;
         border-top: none !important;
         box-shadow: none !important;
-    }
-
-    /* Input pill exact color match */
-    [data-testid="stChatInput"] > div {
-        background-color: #1E1E1E !important;
-        border-radius: 20px !important;
-        border: 1px solid rgba(255,255,255,0.07) !important;
     }
 
     /* Transparent Mic & Tools buttons */
