@@ -259,6 +259,13 @@ st.markdown("""
         display: none !important;
     }
     
+    /* Fix for Streamlit Cloud input bar shadow/background */
+    div[data-testid="stChatInput"] {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
     /* Transparent Mic & Tools buttons */
     .input-mic button, .input-tools button {
         background-color: transparent !important;
