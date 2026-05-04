@@ -1,4 +1,3 @@
-.streamlit/
 .env
 __pycache__/
 *.pyc
@@ -6,3 +5,4 @@ chats/
 temp_audio/
 *.tmp
 *.wav
+.streamlit/secrets.toml
