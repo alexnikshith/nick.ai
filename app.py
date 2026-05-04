@@ -269,8 +269,14 @@ st.markdown("""
         box-shadow: none !important;
     }
     
-    div[data-testid="stChatInput"] {
+    div[data-testid="stChatInput"],
+    div[data-testid="stChatInput"] > div,
+    div[data-testid="stChatInput"] > div > div,
+    [data-testid="stChatInput"] button {
         background-color: transparent !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
     }
     
     /* Transparent Mic & Tools buttons */
