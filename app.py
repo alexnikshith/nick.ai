@@ -821,33 +821,43 @@ with col1:
 
 with col2:
     st.write("") # padding
-    with st.popover("↑ Share &nbsp; •••", use_container_width=True):
+    with st.popover("↑ Share \u00a0 •••", use_container_width=True):
 
         st.subheader("Options")
         
         # 1. RENAME
-        new_title = st.text_input("Rename Chat", value=st.session_state.chat_title)
+        new_title = st.text_input("Rename Chat", value=st.session_state.chat_title, key="rename_input")
         if st.button("Save Name", use_container_width=True):
-            st.session_state.chat_title = new_title
-            save_chat(st.session_state.current_chat_id, new_title, st.session_state.messages)
-            st.rerun()
+            st.session_state["pending_rename"] = new_title
             
         st.markdown("---")
         
         # 2. SHARE
         st.markdown("**Universal Share Link:**")
-        share_url = f"http://localhost:8501/?share={st.session_state.current_chat_id}"
+        share_url = f"https://nick-ai.streamlit.app/?share={st.session_state.current_chat_id}"
         st.code(share_url, language=None)
         
         st.markdown("---")
         
         # 3. DELETE
         if st.button("🗑️ Delete Chat", use_container_width=True, type="secondary"):
-            delete_chat(st.session_state.current_chat_id)
-            st.session_state.current_chat_id = str(uuid.uuid4())
-            st.session_state.chat_title = "New chat"
-            st.session_state.messages = []
-            st.rerun()
+            st.session_state["pending_delete"] = True
+
+# Process deferred actions OUTSIDE the popover
+if st.session_state.get("pending_rename"):
+    new_name = st.session_state.pop("pending_rename")
+    st.session_state.chat_title = new_name
+    save_chat(st.session_state.current_chat_id, new_name, st.session_state.messages)
+    st.toast(f"Renamed to '{new_name}'")
+    st.rerun()
+
+if st.session_state.get("pending_delete"):
+    st.session_state.pop("pending_delete")
+    delete_chat(st.session_state.current_chat_id)
+    st.session_state.current_chat_id = str(uuid.uuid4())
+    st.session_state.chat_title = "New chat"
+    st.session_state.messages = []
+    st.rerun()
 
 
 # Display chat messages using CUSTOM UI
