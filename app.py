@@ -269,24 +269,25 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    /* Force the send button to stay INSIDE the pill */
-    [data-testid="stChatInput"] {
-        border-radius: 30px !important;
-        overflow: hidden !important;
-    }
-
+    /* Force the send button to stay INSIDE the pill on the RIGHT */
     [data-testid="stChatInput"] > div {
         display: flex !important;
+        flex-direction: row !important;
         align-items: center !important;
         border-radius: 30px !important;
+        padding-right: 8px !important;
     }
 
-    /* Send button styling - keep it inside */
+    [data-testid="stChatInput"] > div > textarea {
+        flex: 1 !important;
+    }
+
+    /* Send button stays on the right, vertically centered */
     [data-testid="stChatInput"] button[kind="primaryFormSubmit"],
     [data-testid="stChatInput"] button {
-        position: relative !important;
+        flex-shrink: 0 !important;
+        align-self: center !important;
         border-radius: 50% !important;
-        margin-right: 4px !important;
     }
 
     /* Transparent Mic & Tools buttons */
