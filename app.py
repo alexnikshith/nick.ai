@@ -259,7 +259,7 @@ st.markdown("""
         display: none !important;
     }
     
-    /* --- REVERT TO ORIGINAL SIMPLE PILL DESIGN --- */
+    /* --- DEEP INJECTION FOR CLOUD DESIGN PARITY --- */
     [data-testid="stBottomBlockContainer"], 
     [data-testid="stBottom"],
     footer {
@@ -269,18 +269,28 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    div[data-testid="stChatInput"] {
+    /* Dissolve the outer cloud boxes */
+    div[data-testid="stChatInput"],
+    div[data-testid="stChatInput"] > div {
         background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        max-width: 850px !important; /* Force a neat width */
-        margin: 0 auto !important;   /* Center it perfectly */
+        max-width: 850px !important;
+        margin: 0 auto !important;
     }
 
-    div[data-testid="stChatInput"] > div {
+    /* The actual floating pill */
+    div[data-testid="stChatInput"] > div > div {
         background-color: #262626 !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 30px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 20px !important;
+        padding: 4px !important;
+    }
+
+    /* Clean up the inner textarea */
+    textarea[data-testid="stChatInputTextArea"] {
+        background-color: transparent !important;
+        border: none !important;
     }
     
     /* Transparent Mic & Tools buttons */
