@@ -397,93 +397,96 @@ st.markdown("""
         margin-left: 0.3rem;
         font-size: 1rem;
     }
-    /* ===== CUSTOM CHAT INPUT BAR ===== */
+    /* ===== CHAT INPUT BAR ===== */
 
-    /* Bottom container */
-    div[data-testid="stBottom"] {
+    /* Bottom area */
+    [data-testid="stBottom"],
+    [data-testid="stBottomBlockContainer"] {
         background-color: #000000 !important;
-        padding: 0 1.2rem 1.2rem !important;
+        padding: 0 1rem 1rem !important;
     }
 
-    /* Strip form chrome */
-    [data-testid="stForm"] {
-        border: none !important;
-        padding: 0 !important;
+    /* Outer chat input wrapper - transparent, no border */
+    [data-testid="stChatInput"] {
         background: transparent !important;
-    }
-
-    /* Row: vertically center the input and button */
-    [data-testid="stForm"] [data-testid="stHorizontalBlock"] {
-        align-items: center !important;
-        gap: 10px !important;
-    }
-
-    /* Input column: flex-grow */
-    [data-testid="stForm"] [data-testid="stHorizontalBlock"] > div:first-child {
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-    }
-
-    /* Button column: shrink to content */
-    [data-testid="stForm"] [data-testid="stHorizontalBlock"] > div:last-child {
-        flex: 0 0 auto !important;
-        width: auto !important;
-    }
-
-    /* Hide label above the text input */
-    [data-testid="stForm"] [data-testid="stTextInputRootElement"] label,
-    [data-testid="stForm"] label {
-        display: none !important;
-        height: 0 !important;
-        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
         padding: 0 !important;
+        position: relative !important;
     }
 
-    /* The text input field */
-    [data-testid="stForm"] input[type="text"],
-    [data-testid="stForm"] input {
+    /* Inner div = the visual bar */
+    [data-testid="stChatInput"] > div {
         background-color: #2F2F2F !important;
-        border: 1px solid #4D4D4F !important;
-        border-radius: 0.85rem !important;
+        border: 1px solid #4A4A4A !important;
+        border-radius: 1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        position: relative !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* Textarea fills the bar, padding-right reserves space for button */
+    [data-testid="stChatInput"] textarea {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
         color: #FFFFFF !important;
-        height: 48px !important;
-        padding: 0 1.2rem !important;
         font-size: 0.95rem !important;
         font-family: 'Inter', sans-serif !important;
-        transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+        padding: 0.85rem 3.5rem 0.85rem 1.2rem !important;
+        resize: none !important;
+        scrollbar-width: none !important;
+        outline: none !important;
+        flex: 1 !important;
+        min-height: 50px !important;
+        max-height: 50px !important;
+        line-height: 1.4 !important;
+    }
+    [data-testid="stChatInput"] textarea::-webkit-scrollbar {
+        display: none !important;
+    }
+    [data-testid="stChatInput"] textarea::placeholder {
+        color: #6E6E80 !important;
+    }
+    [data-testid="stChatInput"] textarea:focus {
         outline: none !important;
         box-shadow: none !important;
     }
-    [data-testid="stForm"] input:focus {
+    [data-testid="stChatInput"] > div:focus-within {
         border-color: #6E6E80 !important;
-        box-shadow: 0 0 0 2px rgba(110,110,128,0.2) !important;
-    }
-    [data-testid="stForm"] input::placeholder {
-        color: #6E6E80 !important;
     }
 
-    /* Send button */
-    [data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
-        background-color: #FFFFFF !important;
+    /* Send button - sits inside the bar at the right edge */
+    [data-testid="stChatInputSubmitButton"] button,
+    [data-testid="stChatInput"] button {
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        background-color: #555560 !important;
         border: none !important;
-        border-radius: 0.75rem !important;
-        color: #000000 !important;
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        height: 48px !important;
-        width: 48px !important;
-        min-width: 48px !important;
+        border-radius: 0.5rem !important;
+        color: #FFFFFF !important;
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
         padding: 0 !important;
         margin: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        box-shadow: none !important;
+        font-size: 0.9rem !important;
         cursor: pointer !important;
+        box-shadow: none !important;
         transition: background-color 0.2s ease !important;
+        z-index: 10 !important;
     }
-    [data-testid="stForm"] [data-testid="stFormSubmitButton"] > button:hover {
-        background-color: #DEDEDE !important;
+    [data-testid="stChatInputSubmitButton"] button:hover,
+    [data-testid="stChatInput"] button:hover {
+        background-color: #6E6E80 !important;
     }
     
     /* Sidebar Branding (Fixed Header) - Forced to Top */
@@ -932,24 +935,12 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 
 
-# Custom Chat Input: st.text_input (single-line, Enter submits) + send button
-with st.form(key="chat_form", clear_on_submit=True):
-    col_input, col_btn = st.columns([0.93, 0.07])
-    with col_input:
-        prompt = st.text_input(
-            label="msg",
-            placeholder="Ask anything...",
-            label_visibility="collapsed",
-            key="chat_input_box",
-        )
-    with col_btn:
-        submitted = st.form_submit_button("↑", use_container_width=False)
-
-if submitted and prompt and prompt.strip():
-    st.session_state.messages.append({"role": "user", "content": prompt.strip()})
+# Native chat input - button sits inside the bar at the right edge
+if prompt := st.chat_input("Ask anything..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
     st.session_state.ai_processing = True
     if len(st.session_state.messages) <= 2:
-        st.session_state.chat_title = generate_title(prompt.strip())
+        st.session_state.chat_title = generate_title(prompt)
     st.rerun()
 
 # Trigger AI response
