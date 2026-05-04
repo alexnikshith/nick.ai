@@ -259,38 +259,14 @@ st.markdown("""
         display: none !important;
     }
     
-    /* --- DEEP INJECTION FOR CLOUD DESIGN PARITY --- */
+    /* Keep bottom area black */
     [data-testid="stBottomBlockContainer"], 
     [data-testid="stBottom"],
     footer {
         background-color: #000000 !important;
         background: #000000 !important;
-        border: none !important;
+        border-top: none !important;
         box-shadow: none !important;
-    }
-
-    /* Dissolve the outer cloud boxes */
-    div[data-testid="stChatInput"],
-    div[data-testid="stChatInput"] > div {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        max-width: 850px !important;
-        margin: 0 auto !important;
-    }
-
-    /* The actual floating pill */
-    div[data-testid="stChatInput"] > div > div {
-        background-color: #262626 !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 20px !important;
-        padding: 4px !important;
-    }
-
-    /* Clean up the inner textarea */
-    textarea[data-testid="stChatInputTextArea"] {
-        background-color: transparent !important;
-        border: none !important;
     }
     
     /* Transparent Mic & Tools buttons */
