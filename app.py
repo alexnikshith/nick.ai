@@ -1022,7 +1022,7 @@ if st.session_state.get('ai_processing', False):
         
         # Groq-powered Llama 3
         stream = client.chat.completions.create(
-            model="llama-3.1-70b-versatile",
+            model="llama-3.3-70b-versatile",
             messages=api_messages,
             stream=True,
         )
