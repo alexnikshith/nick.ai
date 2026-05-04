@@ -259,9 +259,14 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Fix for Streamlit Cloud input bar shadow/background */
-    div[data-testid="stChatInput"] {
+    /* Fix for Streamlit Cloud input bar shadow/background - AGGRESSIVE */
+    div[data-testid="stChatInput"], 
+    div[data-testid="stChatInput"] > div,
+    div[data-testid="stBottomBlockContainer"],
+    footer,
+    [data-testid="stBottom"] {
         background-color: transparent !important;
+        background: transparent !important;
         border: none !important;
         box-shadow: none !important;
     }
