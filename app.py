@@ -269,6 +269,25 @@ st.markdown("""
         box-shadow: none !important;
     }
 
+    /* Position send button vertically centered next to the bar */
+    [data-testid="stChatInput"] {
+        position: relative !important;
+    }
+
+    [data-testid="stChatInputSubmitButton"] {
+        position: absolute !important;
+        top: 50% !important;
+        right: 12px !important;
+        transform: translateY(-50%) !important;
+        bottom: auto !important;
+        left: auto !important;
+    }
+
+    /* Add right padding so button doesn't cover typed text */
+    textarea[data-testid="stChatInputTextArea"] {
+        padding-right: 55px !important;
+    }
+
     /* Transparent Mic & Tools buttons */
     .input-mic button, .input-tools button {
         background-color: transparent !important;
