@@ -399,109 +399,91 @@ st.markdown("""
     }
     /* ===== CUSTOM CHAT INPUT BAR ===== */
 
-    /* Bottom container - no background bleed */
+    /* Bottom container */
     div[data-testid="stBottom"] {
         background-color: #000000 !important;
-        padding: 0 1rem 1.2rem !important;
+        padding: 0 1.2rem 1.2rem !important;
     }
 
-    /* Remove form border / padding that Streamlit adds */
+    /* Strip form chrome */
     [data-testid="stForm"] {
         border: none !important;
         padding: 0 !important;
         background: transparent !important;
     }
 
-    /* Hide 'Press Ctrl+Enter to submit form' hint text */
-    [data-testid="InputInstructions"],
-    .stTextArea [data-testid="InputInstructions"],
-    small.st-emotion-cache-1gulkj5,
-    div[data-testid="stForm"] small,
-    div[data-testid="stForm"] p:has(small) {
-        display: none !important;
+    /* Row: vertically center the input and button */
+    [data-testid="stForm"] [data-testid="stHorizontalBlock"] {
+        align-items: center !important;
+        gap: 10px !important;
     }
 
-    /* Remove label gap from text_area (we collapse the label) */
-    .custom-chat-textarea [data-testid="stTextArea"] label {
+    /* Input column: flex-grow */
+    [data-testid="stForm"] [data-testid="stHorizontalBlock"] > div:first-child {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+
+    /* Button column: shrink to content */
+    [data-testid="stForm"] [data-testid="stHorizontalBlock"] > div:last-child {
+        flex: 0 0 auto !important;
+        width: auto !important;
+    }
+
+    /* Hide label above the text input */
+    [data-testid="stForm"] [data-testid="stTextInputRootElement"] label,
+    [data-testid="stForm"] label {
         display: none !important;
         height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
     }
-    .custom-chat-textarea [data-testid="stTextArea"] {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
 
-    /* The actual textarea: single-line look, no resize */
-    .custom-chat-textarea textarea {
+    /* The text input field */
+    [data-testid="stForm"] input[type="text"],
+    [data-testid="stForm"] input {
         background-color: #2F2F2F !important;
         border: 1px solid #4D4D4F !important;
         border-radius: 0.85rem !important;
         color: #FFFFFF !important;
-        padding: 0.85rem 1.1rem !important;
-        resize: none !important;
-        overflow: hidden !important;
-        line-height: 1.5 !important;
+        height: 48px !important;
+        padding: 0 1.2rem !important;
         font-size: 0.95rem !important;
         font-family: 'Inter', sans-serif !important;
         transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
-        scrollbar-width: none !important;
-    }
-    .custom-chat-textarea textarea::-webkit-scrollbar {
-        display: none !important;
-    }
-    .custom-chat-textarea textarea:focus {
-        border-color: #6E6E80 !important;
-        box-shadow: 0 0 0 2px rgba(110,110,128,0.25) !important;
         outline: none !important;
+        box-shadow: none !important;
     }
-    .custom-chat-textarea textarea::placeholder {
+    [data-testid="stForm"] input:focus {
+        border-color: #6E6E80 !important;
+        box-shadow: 0 0 0 2px rgba(110,110,128,0.2) !important;
+    }
+    [data-testid="stForm"] input::placeholder {
         color: #6E6E80 !important;
     }
 
-    /* Column alignment: make both columns the same height row */
-    [data-testid="stForm"] [data-testid="stHorizontalBlock"] {
-        align-items: flex-end !important;
-        gap: 8px !important;
-    }
-    [data-testid="stForm"] [data-testid="stHorizontalBlock"] > div {
-        flex-shrink: 0 !important;
-    }
-    /* Input column stretches */
-    [data-testid="stForm"] [data-testid="stHorizontalBlock"] > div:first-child {
-        flex: 1 1 auto !important;
-    }
-    /* Button column stays compact */
-    [data-testid="stForm"] [data-testid="stHorizontalBlock"] > div:last-child {
-        flex: 0 0 auto !important;
-        width: auto !important;
-        min-width: 0 !important;
-    }
-
-    /* Send button: white rounded square, vertically aligned */
-    .custom-send-btn [data-testid="stFormSubmitButton"] button,
-    .custom-send-btn button {
+    /* Send button */
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
         background-color: #FFFFFF !important;
         border: none !important;
-        border-radius: 0.7rem !important;
+        border-radius: 0.75rem !important;
         color: #000000 !important;
-        font-size: 1rem !important;
-        height: 44px !important;
-        width: 44px !important;
-        min-width: 44px !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        height: 48px !important;
+        width: 48px !important;
+        min-width: 48px !important;
         padding: 0 !important;
         margin: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        cursor: pointer !important;
         box-shadow: none !important;
+        cursor: pointer !important;
         transition: background-color 0.2s ease !important;
     }
-    .custom-send-btn [data-testid="stFormSubmitButton"] button:hover,
-    .custom-send-btn button:hover {
-        background-color: #E0E0E0 !important;
+    [data-testid="stForm"] [data-testid="stFormSubmitButton"] > button:hover {
+        background-color: #DEDEDE !important;
     }
     
     /* Sidebar Branding (Fixed Header) - Forced to Top */
@@ -950,23 +932,18 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 
 
-# Custom Chat Input: textarea + send button as true side-by-side siblings
+# Custom Chat Input: st.text_input (single-line, Enter submits) + send button
 with st.form(key="chat_form", clear_on_submit=True):
     col_input, col_btn = st.columns([0.93, 0.07])
     with col_input:
-        st.markdown('<div class="custom-chat-textarea">', unsafe_allow_html=True)
-        prompt = st.text_area(
-            label="chat",
+        prompt = st.text_input(
+            label="msg",
             placeholder="Ask anything...",
-            height=44,
             label_visibility="collapsed",
             key="chat_input_box",
         )
-        st.markdown('</div>', unsafe_allow_html=True)
     with col_btn:
-        st.markdown('<div class="custom-send-btn">', unsafe_allow_html=True)
         submitted = st.form_submit_button("↑", use_container_width=False)
-        st.markdown('</div>', unsafe_allow_html=True)
 
 if submitted and prompt and prompt.strip():
     st.session_state.messages.append({"role": "user", "content": prompt.strip()})
