@@ -463,7 +463,7 @@ st.markdown("""
     [data-testid="stChatInputSubmitButton"] button,
     [data-testid="stChatInput"] button {
         position: absolute !important;
-        right: 8px !important;
+        right: 19px !important;
         top: 50% !important;
         transform: translateY(-50%) !important;
         background-color: #555560 !important;
@@ -890,7 +890,7 @@ for msg in st.session_state.messages:
     """, unsafe_allow_html=True)
 
 # Tools Menu (Add Photos, Web Search, Voice, etc)
-st.markdown('<div style="height: 30px;"></div>', unsafe_allow_html=True)
+st.markdown('<div style="height: 49px;"></div>', unsafe_allow_html=True)
 st.markdown('<div class="input-tools">', unsafe_allow_html=True)
 with st.popover("➕"):
     st.markdown("#### Tools & Voice")
