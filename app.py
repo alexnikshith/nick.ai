@@ -403,7 +403,7 @@ st.markdown("""
     [data-testid="stBottom"],
     [data-testid="stBottomBlockContainer"] {
         background-color: #000000 !important;
-        padding: 0 1rem 1rem !important;
+        padding: 0 1rem 2.2rem !important;
     }
 
     /* Outer chat input wrapper - transparent, no border */
