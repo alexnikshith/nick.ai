@@ -1,0 +1,10 @@
+streamlit
+openai
+python-dotenv
+duckduckgo-search
+PyPDF2
+SpeechRecognition
+pydub
+numpy
+soundfile
+groq
