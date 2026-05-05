@@ -456,17 +456,28 @@ st.markdown("""
         padding-left: 0.5rem;
     }
 
-    /* Dashboard Widget Buttons */
+    /* Dashboard Widget Buttons: Perfect Symmetry */
     div[data-testid="column"] button {
-        height: 3.5rem !important;
+        height: 5rem !important;
+        min-height: 5rem !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
         align-items: center !important;
-        gap: 2px !important;
-        line-height: 1.2 !important;
-        font-size: 0.85rem !important;
+        gap: 4px !important;
         width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    /* Ensure icon stays on top and text on bottom */
+    div[data-testid="column"] button div[data-testid="stMarkdownContainer"] p {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        line-height: 1.1 !important;
+        font-size: 0.9rem !important;
     }
 
 
