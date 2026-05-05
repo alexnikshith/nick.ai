@@ -388,7 +388,8 @@ st.markdown("""
     div[data-testid="stSidebar"] div.stButton > button div,
     div[data-testid="stSidebar"] div.stButton > button p,
     div[data-testid="stSidebar"] div.stButton > button span,
-    div[data-testid="stSidebar"] div.stButton > button [data-testid="stMarkdownContainer"] {
+    div[data-testid="stSidebar"] div.stButton > button [data-testid="stMarkdownContainer"],
+    div[data-testid="stSidebar"] [data-testid="column"] {
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
@@ -396,6 +397,12 @@ st.markdown("""
         text-align: left !important;
         min-width: 0 !important;
         width: 100% !important;
+    }
+    
+    /* Ensure the horizontal block itself doesn't wrap */
+    div[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+        flex-wrap: nowrap !important;
+        align-items: center !important;
     }
     
     div[data-testid="stSidebar"] div.stButton > button:hover {
