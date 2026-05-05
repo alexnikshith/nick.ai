@@ -100,46 +100,171 @@ def new_chat():
     st.session_state.chat_pinned = False
     st.rerun()
 
-# --- CSS (Premium Obsidian/WhatsApp Theme) ---
+# --- PREMIUM CSS (Obsidian/WhatsApp Mix) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap');
-    .stApp { background-color: #0F0F0F; color: #E0E0E0; font-family: 'Inter', sans-serif; }
-    [data-testid="stChatMessage"] { padding: 0.8rem 1rem !important; margin-bottom: 1rem !important; max-width: fit-content !important; min-width: 100px !important; border-radius: 1.2rem !important; background-color: transparent !important; }
-    [data-testid="stChatMessageAvatarUser"], [data-testid="stChatMessageAvatarAssistant"] { display: none !important; }
-    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) { margin-right: auto !important; margin-left: 0 !important; background-color: #1A1A1A !important; border: 1px solid rgba(255, 255, 255, 0.05) !important; border-bottom-left-radius: 0.2rem !important; }
-    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) { margin-left: auto !important; margin-right: 0 !important; background-color: #2D2D2D !important; border: 1px solid rgba(187, 134, 252, 0.2) !important; border-bottom-right-radius: 0.2rem !important; }
-    .bubble-role { font-size: 0.7rem; font-weight: 600; margin-bottom: 4px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .stApp {
+        background-color: #0F0F0F;
+        color: #E0E0E0;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Chat Header */
+    .chat-header {
+        position: sticky;
+        top: 0;
+        z-index: 99;
+        background-color: rgba(15, 15, 15, 0.8);
+        backdrop-filter: blur(10px);
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .chat-header div {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    /* WhatsApp Bubbles */
+    [data-testid="stChatMessage"] {
+        padding: 0.8rem 1rem !important;
+        margin-bottom: 1rem !important;
+        max-width: fit-content !important;
+        min-width: 120px !important;
+        border-radius: 1.2rem !important;
+        background-color: transparent !important;
+    }
+
+    [data-testid="stChatMessageAvatarUser"], 
+    [data-testid="stChatMessageAvatarAssistant"] {
+        display: none !important;
+    }
+
+    /* Assistant Message (Left) */
+    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
+        margin-right: auto !important;
+        margin-left: 0 !important;
+        background-color: #1A1A1A !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-bottom-left-radius: 0.2rem !important;
+    }
+
+    /* User Message (Right) */
+    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+        margin-left: auto !important;
+        margin-right: 0 !important;
+        background-color: #2D2D2D !important;
+        border: 1px solid rgba(187, 134, 252, 0.2) !important;
+        border-bottom-right-radius: 0.2rem !important;
+    }
+
+    .bubble-role {
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        opacity: 0.4;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Input Bar */
+    .stChatInput {
+        padding-bottom: 2rem !important;
+    }
+
+    /* Tools Popover Alignment */
+    .input-tools {
+        position: fixed;
+        bottom: 2.5rem;
+        left: 2rem;
+        z-index: 1000;
+    }
+
+    /* Thinking Animation */
+    @keyframes thinking {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 1; }
+    }
+    .thinking-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: #00F2FF;
+        border-radius: 50%;
+        margin-right: 4px;
+        animation: thinking 1.4s infinite;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# --- SIDEBAR ---
+# --- SIDEBAR (Advanced Recents) ---
 with st.sidebar:
-    st.markdown("## nick.ai")
-    if st.button("＋ New Chat", use_container_width=True): new_chat()
-    st.session_state.turbo_mode = st.toggle("🚀 Turbo Mode (70B)", value=st.session_state.turbo_mode, help="High-performance mode. Disable for simple chat to save tokens.")
+    st.markdown("<h2 style='font-family:Outfit; letter-spacing:-1px;'>nick.ai</h2>", unsafe_allow_html=True)
+    
+    if st.button("＋ New Chat", use_container_width=True):
+        new_chat()
+    
+    st.session_state.turbo_mode = st.toggle("🚀 Turbo Mode (70B)", value=st.session_state.turbo_mode, help="Use the high-performance model for deep logic.")
     
     st.markdown("---")
+    
+    # Advanced Sidebar: Search & Projects
+    with st.expander("📂 Projects & Search", expanded=False):
+        st.session_state.search_query = st.text_input("Search chats...", value=st.session_state.search_query)
+        st.session_state.current_project = st.selectbox("Project", ["All", "General", "Research", "Coding"])
+
     st.markdown("### Recents")
     all_chats = get_all_chats()
+    
+    # Filter
+    if st.session_state.current_project != "All":
+        all_chats = [c for c in all_chats if c.get('project', 'General') == st.session_state.current_project]
+    if st.session_state.search_query:
+        all_chats = [c for c in all_chats if st.session_state.search_query.lower() in c['title'].lower()]
+        
     all_chats.sort(key=lambda x: (x.get('pinned', False), x.get('updated_at', '')), reverse=True)
+    
     for chat in all_chats:
-        if st.button(f"💬 {chat['title'][:25]}", key=f"chat_{chat['id']}", use_container_width=True):
-            data = load_chat(chat['id'])
-            if data:
-                st.session_state.messages = data['messages']
-                st.session_state.current_chat_id = chat['id']
-                st.session_state.chat_title = data['title']
-                st.rerun()
+        col_c, col_m = st.columns([0.85, 0.15])
+        with col_c:
+            if st.button(f"💬 {chat['title'][:22]}", key=f"chat_{chat['id']}", use_container_width=True):
+                data = load_chat(chat['id'])
+                if data:
+                    st.session_state.messages = data['messages']
+                    st.session_state.current_chat_id = chat['id']
+                    st.session_state.chat_title = data['title']
+                    st.rerun()
+        with col_m:
+            with st.popover("⋮", key=f"pop_{chat['id']}"):
+                if st.button("🗑️ Delete", key=f"del_{chat['id']}", use_container_width=True):
+                    delete_chat(chat['id'])
+                    st.rerun()
 
     st.markdown("---")
+    # Profile Popover
     with st.popover(f"👤 {st.session_state.user_display_name}", use_container_width=True):
-        st.session_state.user_display_name = st.text_input("Display Name", value=st.session_state.user_display_name)
+        st.session_state.user_display_name = st.text_input("Name", value=st.session_state.user_display_name)
+        st.session_state.kb_path = st.text_input("Knowledge Base Path", value=st.session_state.kb_path)
         if st.button("Save Profile"): st.rerun()
 
 # --- MAIN UI ---
-st.title(st.session_state.chat_title)
+st.markdown('<div class="chat-header"><div>nick.ai</div></div>', unsafe_allow_html=True)
 
+# Welcome Screen
+if not st.session_state.messages:
+    st.markdown(f"""
+        <div style="height: 50vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <h1 style="font-family:Outfit; font-size:2.5rem; text-align:center;">What's on your mind today, {st.session_state.user_display_name.split()[0]}?</h1>
+            <p style="color:rgba(255,255,255,0.3); letter-spacing:2px; text-transform:uppercase; font-size:0.8rem;">Professional AI Assistant Ready</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Render Chat
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(f'<div class="bubble-role">{msg["role"].upper()}</div>', unsafe_allow_html=True)
@@ -163,20 +288,22 @@ for msg in st.session_state.messages:
             if text_after: st.markdown(text_after)
         else: st.markdown(content)
 
-# Input Toolbar
-col_in, col_tools = st.columns([0.85, 0.15])
-with col_tools:
-    with st.popover("➕ Tools"):
-        audio_file = st.audio_input("Speak", label_visibility="collapsed")
-        if audio_file:
-            voice_text = transcribe_audio(audio_file)
-            if "Error" not in voice_text:
-                st.session_state.messages.append({"role": "user", "content": voice_text})
-                st.session_state.ai_processing = True
-                st.rerun()
-        uploaded_files = st.file_uploader("Upload", accept_multiple_files=True, label_visibility="collapsed")
+# Floating Tools
+st.markdown('<div class="input-tools">', unsafe_allow_html=True)
+with st.popover("➕"):
+    st.markdown("#### Add Assets")
+    uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True, label_visibility="collapsed")
+    audio_file = st.audio_input("Voice Input", label_visibility="collapsed")
+    if audio_file:
+        voice_text = transcribe_audio(audio_file)
+        if "Error" not in voice_text:
+            st.session_state.messages.append({"role": "user", "content": voice_text})
+            st.session_state.ai_processing = True
+            st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
-if prompt := st.chat_input("Ask anything..."):
+# Main Input
+if prompt := st.chat_input("Ask nick.ai anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.session_state.ai_processing = True
     if len(st.session_state.messages) <= 2: st.session_state.chat_title = generate_title(prompt)
@@ -190,10 +317,10 @@ if st.session_state.ai_processing:
     IST = pytz.timezone('Asia/Kolkata')
     current_time = datetime.now(IST).strftime("%I:%M %p")
     
-    sys_msg = f"You are nick.ai, a pro assistant. Time: {current_time}. If user asks for image, use [IMAGE: prompt]. Stay concise."
+    sys_msg = f"You are nick.ai, a pro assistant. Today is {current_time}. Rules: If asked for image, use [IMAGE: prompt]. Stay concise."
     api_msgs = [{"role": "system", "content": sys_msg}]
     
-    # Restoring File Support
+    # Files Support
     if 'uploaded_files' in locals() and uploaded_files:
         for f in uploaded_files:
             try:
@@ -209,21 +336,21 @@ if st.session_state.ai_processing:
                     api_msgs.append({"role": "system", "content": f"File: {f.name}\nContent: {text[:3000]}"})
             except: pass
 
-    # Restoring Tavily Research
-    with st.status("🌐 Researching...") as status:
+    # Tavily Research
+    with st.status("🌐 nick.ai is researching...") as status:
         try:
             tavily = TavilyClient(api_key="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")
             res = tavily.search(query=prompt, max_results=3)
             if res.get("results"):
-                web_ctx = "Web Data:\n" + "\n".join([f"- {r['title']}: {r['content'][:300]}" for r in res["results"]])
+                web_ctx = "Web Data:\n" + "\n".join([f"- {r['title']}: {r['content'][:400]}" for r in res["results"]])
                 api_msgs.append({"role": "system", "content": web_ctx})
         except: pass
 
     for m in st.session_state.messages[-6:-1]: api_msgs.append(m)
     api_msgs.append({"role": "user", "content": prompt})
 
-    # Smart Model Selection
-    is_simple = len(prompt) < 20
+    # Smart Model Logic
+    is_simple = len(prompt) < 20 and not uploaded_files
     initial_model = "llama-3.1-8b-instant" if (not st.session_state.turbo_mode or is_simple) else "llama-3.3-70b-versatile"
 
     with st.chat_message("assistant"):
