@@ -961,7 +961,7 @@ for msg in st.session_state.messages:
             st.markdown(content)
 
 # Tools Menu (Add Photos, Web Search, Voice, etc)
-st.markdown('<div style="height: 42vh;"></div>', unsafe_allow_html=True)
+st.markdown('<div style="height: 32vh;"></div>', unsafe_allow_html=True)
 st.markdown('<div id="plus-button-container">', unsafe_allow_html=True)
 with st.popover("➕"):
     st.markdown("#### Tools & Voice")
