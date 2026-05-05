@@ -213,10 +213,19 @@ st.markdown("""
         background-image: none;
     }
     
-    /* Remove default Streamlit top and bottom gaps */
+    /* Remove default Streamlit top and bottom gaps and Hide Scrollbars */
     .block-container {
         padding-top: 0rem !important;
         padding-bottom: 0rem !important;
+    }
+    
+    /* Hide scrollbars globally but allow scrolling */
+    .stApp, [data-testid="stMain"], [data-testid="stMainBlockContainer"] {
+        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important; /* IE and Edge */
+    }
+    .stApp::-webkit-scrollbar, [data-testid="stMain"]::-webkit-scrollbar, [data-testid="stMainBlockContainer"]::-webkit-scrollbar {
+        display: none !important; /* Chrome, Safari, Opera */
     }
     
     /* Precise 5mm bottom gap for sidebar */
