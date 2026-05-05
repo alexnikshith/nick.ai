@@ -1016,8 +1016,8 @@ for msg in st.session_state.messages:
             seed = random.randint(1, 100000)
             img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed={seed}&nologo=true&model=flux"
             
-            # Compact display with responsive width
-            st.image(img_url, caption=f"nick.ai Visual: {img_prompt}", use_container_width=True)
+            # Compact display with fixed width for better layout
+            st.image(img_url, caption=f"nick.ai Visual: {img_prompt}", width=400)
             
             # Action Buttons (Full-Width 50/50 Toolbar)
             col1, col2 = st.columns([1, 1], gap="small")
@@ -1039,7 +1039,7 @@ for msg in st.session_state.messages:
             text_after = parts[1].split("]")[1].strip() if "]" in parts[1] else ""
             
             if text_before: st.markdown(text_before)
-            st.image(img_url, use_container_width=True)
+            st.image(img_url, width=450)
             if text_after: st.markdown(text_after)
         else:
             st.markdown(content)
