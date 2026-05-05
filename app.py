@@ -981,7 +981,11 @@ with st.popover("➕"):
     st.markdown("#### Tools & Voice")
     
     # 1. Voice Input (Integrated & Auto-Trigger!)
-    audio_file = st.audio_input("Speak to nick.ai", label_visibility="collapsed")
+    if "audio_counter" not in st.session_state:
+        st.session_state.audio_counter = 0
+    
+    audio_key = f"voice_input_{st.session_state.audio_counter}"
+    audio_file = st.audio_input("Speak to nick.ai", key=audio_key, label_visibility="collapsed")
     if audio_file:
         # Prevent double-processing
         audio_bytes = audio_file.getvalue()
@@ -998,6 +1002,7 @@ with st.popover("➕"):
                 
             if "Error" not in voice_text:
                 st.session_state.ai_processing = True
+                st.session_state.audio_counter += 1 # Reset the component for next time
                 st.session_state.messages.append({"role": "user", "content": voice_text})
                 
                 # Generate title for new chats
