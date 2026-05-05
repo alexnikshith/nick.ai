@@ -1045,9 +1045,13 @@ if st.session_state.get('ai_processing', False):
                         api_messages.append({"role": "system", "content": f"Context from attached PDF '{file.name}':\n{text[:3000]}"})
                 except: pass
 
-        # 3. Add History
-        for m in st.session_state.messages[-5:-1]:
-            api_messages.append(m)
+        # 3. Add History (last 2 exchanges only to stay within token limits)
+        recent = [m for m in st.session_state.messages[-4:-1] if m["role"] in ("user", "assistant")]
+        for m in recent:
+            content = m["content"]
+            if isinstance(content, str):
+                content = content[:500]  # Truncate long messages
+            api_messages.append({"role": m["role"], "content": content})
         api_messages.append({"role": "user", "content": prompt})
 
         # --- RESPONSE: Thinking Animation ---
