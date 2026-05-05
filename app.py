@@ -220,11 +220,11 @@ st.markdown("""
     }
     
     /* Hide scrollbars globally but allow scrolling */
-    .stApp, [data-testid="stMain"], [data-testid="stMainBlockContainer"] {
+    html, body, .stApp, [data-testid="stMain"], [data-testid="stMainBlockContainer"], * {
         scrollbar-width: none !important; /* Firefox */
         -ms-overflow-style: none !important; /* IE and Edge */
     }
-    .stApp::-webkit-scrollbar, [data-testid="stMain"]::-webkit-scrollbar, [data-testid="stMainBlockContainer"]::-webkit-scrollbar {
+    html::-webkit-scrollbar, body::-webkit-scrollbar, .stApp::-webkit-scrollbar, [data-testid="stMain"]::-webkit-scrollbar, [data-testid="stMainBlockContainer"]::-webkit-scrollbar, *::-webkit-scrollbar {
         display: none !important; /* Chrome, Safari, Opera */
     }
     
