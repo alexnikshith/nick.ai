@@ -906,7 +906,9 @@ for msg in st.session_state.messages:
             
             # Render Image
             encoded_prompt = urllib.parse.quote(img_prompt)
-            img_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&nologo=true"
+            # Use the newer, more stable image.pollinations.ai endpoint
+            seed = random.randint(1, 100000)
+            img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed={seed}&nologo=true"
             st.image(img_url, caption=f"Generated: {img_prompt}", use_container_width=True)
             
             if text_after: st.markdown(text_after)
@@ -1125,9 +1127,10 @@ if st.session_state.get('ai_processing', False):
                 # Render text before image
                 message_placeholder.markdown(text_before)
                 
-                # Generate and Render Image (using Pollinations.ai)
+                # Generate and Render Image (using stable endpoint)
                 encoded_prompt = urllib.parse.quote(img_prompt)
-                img_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&seed={random.randint(1,1000)}&nologo=true"
+                seed = random.randint(1, 100000)
+                img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed={seed}&nologo=true"
                 st.image(img_url, caption=f"Generated: {img_prompt}", use_container_width=True)
                 
                 # Render text after image
