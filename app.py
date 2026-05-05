@@ -274,6 +274,7 @@ for msg in st.session_state.messages:
             text_before = parts[0].strip()
             img_prompt = parts[1].split("]")[0].strip()
             text_after = parts[1].split("]")[1].strip() if "]" in parts[1] else ""
+            
             if text_before: st.markdown(text_before)
             img_url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(img_prompt)}?width=1024&height=1024&seed={random.randint(1,100000)}&nologo=true"
             st.image(img_url, width=500)
