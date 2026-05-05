@@ -384,18 +384,20 @@ st.markdown("""
         --accent: #00F2FF;
     }
     
-    div[data-testid="stSidebar"] div.stButton > button,
-    div[data-testid="stSidebar"] div.stButton > button div,
-    div[data-testid="stSidebar"] div.stButton > button p,
-    div[data-testid="stSidebar"] div.stButton > button span,
-    div[data-testid="stSidebar"] div.stButton > button [data-testid="stMarkdownContainer"],
-    div[data-testid="stSidebar"] [data-testid="column"] {
+    /* Definitive Sidebar Single-Line Force */
+    div[data-testid="stSidebar"] [data-testid="column"],
+    div[data-testid="stSidebar"] .stButton button,
+    div[data-testid="stSidebar"] .stButton button div,
+    div[data-testid="stSidebar"] .stButton button p,
+    div[data-testid="stSidebar"] .stButton button span,
+    div[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         display: block !important;
         text-align: left !important;
         min-width: 0 !important;
+        max-width: 100% !important;
         width: 100% !important;
     }
     
@@ -403,6 +405,7 @@ st.markdown("""
     div[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important;
         align-items: center !important;
+        overflow: hidden !important;
     }
     
     div[data-testid="stSidebar"] div.stButton > button:hover {
