@@ -959,7 +959,7 @@ for msg in st.session_state.messages:
             # Render Image (Compact & Downloadable)
             encoded_prompt = urllib.parse.quote(img_prompt)
             seed = random.randint(1, 100000)
-            img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed={seed}&nologo=true"
+            img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed={seed}&nologo=true&model=flux"
             
             # Compact display
             st.image(img_url, caption=f"Generated: {img_prompt}", width=500)
@@ -1089,8 +1089,8 @@ if st.session_state.get('ai_processing', False):
             "\n2. CODING: Provide ONE clean, simple, and neat solution ONLY when asked. Use simple variable names and inline comments (#)."
             "\n3. NO GUESSING: Use search results for facts. If information is missing, be honest. No hallucinations."
             "\n4. BE CONVERSATIONAL: If the user is just chatting or giving feedback, respond naturally. Do not give code unless it is relevant."
-            "\n5. IMAGE GENERATION: Only generate an image when the user EXPLICITLY asks for a specific scene or object (e.g., 'draw a cat', 'generate a landscape'). NEVER generate an image when explaining your capabilities, discussing your features, or responding to general greetings. You MUST NOT say you are a text-only model; you are fully empowered to generate images only when a specific creative request is made. Provide the prompt in this EXACT format: [IMAGE: your descriptive prompt here]."
-            "\n6. CELEBRITIES/PUBLIC FIGURES: If asked to generate an image of a famous person, FIRST perform a web search to get their current look. If you find a DIRECT URL to a real photograph (must end in .jpg, .png, or .webp), use: [REAL_IMAGE: direct_url_here]. If you cannot find a direct image file link, you MUST fall back to building a hyper-realistic prompt for the image tool: [IMAGE: your descriptive prompt here]. NEVER provide a broken link or a page URL in [REAL_IMAGE:]."
+            "\n5. IMAGE GENERATION: Only generate an image when the user EXPLICITLY asks for a specific scene or object (e.g., 'draw a cat', 'generate a landscape'). NEVER generate an image when explaining your capabilities, discussing your features, or responding to general greetings. You MUST NOT say you are a text-only model; you are fully empowered to generate images only when a specific creative request is made. Use hyper-realistic, cinematic, and high-fidelity descriptions (e.g., '8k, studio lighting, photorealistic'). Provide the prompt in this EXACT format: [IMAGE: your descriptive prompt here]."
+            "\n6. CELEBRITIES/PUBLIC FIGURES: If asked to generate an image of a famous person, FIRST perform a web search to get their current look. If you find a DIRECT URL to a real photograph (must end in .jpg, .png, or .webp), use: [REAL_IMAGE: direct_url_here]. If no direct photo is found, you MUST build an EXTREMELY detailed, photorealistic prompt (describing skin texture, hair, lighting, and unique facial features) for the image tool: [IMAGE: your descriptive prompt here]. Accuracy is priority #1."
         )
         api_messages = [{
             "role": "system",
