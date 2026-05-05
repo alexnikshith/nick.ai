@@ -900,7 +900,7 @@ if not st.session_state.messages:
     """, unsafe_allow_html=True)
 
 for msg in st.session_state.messages:
-    role_label = "Nikshith" if msg["role"] == "user" else "nick.ai"
+    role_label = st.session_state.user_display_name if msg["role"] == "user" else "nick.ai"
     bubble_class = "user-bubble" if msg["role"] == "user" else "assistant-bubble"
     
     st.markdown(f"""
@@ -992,8 +992,11 @@ if st.session_state.get('ai_processing', False):
             
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
         
+        # 0. Get Current Time
+        current_date = datetime.now().strftime("%A, %B %d, %Y")
+        
         # --- PRE-PROCESSING: Build Context ---
-        api_messages = [{"role": "system", "content": "You are nick.ai, an extremely smart AI assistant created, developed, and trained by Nikshith Gurram. Keep replies professional yet friendly."}]
+        api_messages = [{"role": "system", "content": f"You are nick.ai, an extremely smart AI assistant created, developed, and trained by Nikshith Gurram. Today's date is {current_date}. Keep replies professional yet friendly."}]
         
         # 1. Handle Web Search
         if st.session_state.web_search_enabled:
