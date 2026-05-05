@@ -378,6 +378,8 @@ st.markdown("""
         justify-content: flex-start;
         align-items: center;
         transition: all 0.2s ease;
+        max-height: 2.2rem !important;
+        overflow: hidden !important;
     }
     /* Accent Color */
     :root {
@@ -392,6 +394,8 @@ st.markdown("""
     div[data-testid="stSidebar"] .stButton button span,
     div[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
         white-space: nowrap !important;
+        text-wrap: nowrap !important;
+        word-break: keep-all !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         display: block !important;
