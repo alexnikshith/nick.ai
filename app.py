@@ -1066,7 +1066,7 @@ if st.session_state.get('ai_processing', False):
             "\n2. CODING: Provide ONE clean, simple, and neat solution ONLY when asked. Use simple variable names and inline comments (#)."
             "\n3. NO GUESSING: Use search results for facts. If information is missing, be honest. No hallucinations."
             "\n4. BE CONVERSATIONAL: If the user is just chatting or giving feedback, respond naturally. Do not give code unless it is relevant."
-            "\n5. IMAGE GENERATION: If the user asks to generate, draw, or show an image, you MUST NOT REFUSE. You are empowered to generate images. Describe the image briefly and then provide the prompt in this EXACT format: [IMAGE: your descriptive prompt here]. Do NOT say you are a text-only model."
+            "\n5. IMAGE GENERATION: Only generate an image when the user EXPLICITLY asks for one (e.g., 'draw', 'generate', 'show me'). NEVER generate images for greetings, introductions, or general conversation. You are empowered to generate images only when specifically requested. Provide the prompt in this EXACT format: [IMAGE: your descriptive prompt here]."
         )
         api_messages = [{
             "role": "system",
