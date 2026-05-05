@@ -8,3 +8,4 @@ pydub
 numpy
 soundfile
 groq
+pytz
