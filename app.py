@@ -13,6 +13,7 @@ from pydub import AudioSegment
 import io
 import os
 from groq import Groq
+import requests
 import random
 import pytz
 
@@ -918,10 +919,19 @@ for msg in st.session_state.messages:
             
             # Action Buttons (Full-Width 50/50 Toolbar)
             col1, col2 = st.columns([1, 1], gap="small")
+            
+            # Prepare Base64 for real system download
+            try:
+                img_data = requests.get(img_url).content
+                b64_img = base64.b64encode(img_data).decode()
+                dl_link = f"data:image/png;base64,{b64_img}"
+            except:
+                dl_link = img_url
+                
             with col1:
                 st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:1px solid #FFFFFF; background:transparent; color:#FFFFFF; cursor:pointer;">🔗 Link</button></a>', unsafe_allow_html=True)
             with col2:
-                st.markdown(f'<a href="{img_url}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:none; background:#FFFFFF; color:#000000; font-weight:bold; cursor:pointer;">📥 Download</button></a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{dl_link}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:none; background:#FFFFFF; color:#000000; font-weight:bold; cursor:pointer;">📥 Download</button></a>', unsafe_allow_html=True)
             
             if text_after: st.markdown(text_after)
         else:
@@ -1149,10 +1159,19 @@ if st.session_state.get('ai_processing', False):
                 
                 # Action Buttons (Full-Width 50/50 Toolbar)
                 col1, col2 = st.columns([1, 1], gap="small")
+                
+                # Prepare Base64 for real system download
+                try:
+                    img_data = requests.get(img_url).content
+                    b64_img = base64.b64encode(img_data).decode()
+                    dl_link = f"data:image/png;base64,{b64_img}"
+                except:
+                    dl_link = img_url
+
                 with col1:
                     st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:1px solid #FFFFFF; background:transparent; color:#FFFFFF; cursor:pointer;">🔗 Link</button></a>', unsafe_allow_html=True)
                 with col2:
-                    st.markdown(f'<a href="{img_url}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:none; background:#FFFFFF; color:#000000; font-weight:bold; cursor:pointer;">📥 Download</button></a>', unsafe_allow_html=True)
+                    st.markdown(f'<a href="{dl_link}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:none; background:#FFFFFF; color:#000000; font-weight:bold; cursor:pointer;">📥 Download</button></a>', unsafe_allow_html=True)
                 
                 # Render text after image
                 if text_after:
