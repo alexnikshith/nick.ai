@@ -487,6 +487,7 @@ st.markdown("""
         display: none !important;
     }
 /* Recents Header */
+    /* Recents Header */
     div[data-testid="stSidebar"] h3 {
         color: #4D4D4D;
         font-size: 0.75rem;
@@ -496,17 +497,30 @@ st.markdown("""
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
         padding-left: 0.5rem;
-    /* Dashboard Widget Buttons */
+    }
+
+    /* Dashboard Widget Buttons: Forced Symmetry */
     div[data-testid="column"] button {
-        height: 3.5rem !important;
+        height: 4.5rem !important;
+        min-height: 4.5rem !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
         align-items: center !important;
-        gap: 2px !important;
-        line-height: 1.2 !important;
-        font-size: 0.85rem !important;
+        gap: 5px !important;
+        line-height: 1 !important;
+        font-size: 0.8rem !important;
         width: 100% !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+    }
+    
+    /* Force icons to be on top */
+    div[data-testid="column"] button div[data-testid="stMarkdownContainer"] p {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        margin: 0 !important;
     }
 
     /* Main Chat Header */
