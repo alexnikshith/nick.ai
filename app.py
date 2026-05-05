@@ -912,15 +912,8 @@ if not st.session_state.messages:
     """, unsafe_allow_html=True)
 
 for msg in st.session_state.messages:
-    role_label = st.session_state.user_display_name if msg["role"] == "user" else "nick.ai"
-    bubble_class = "user-bubble" if msg["role"] == "user" else "assistant-bubble"
-    
-    st.markdown(f"""
-        <div class="chat-bubble {bubble_class}">
-            <div class="bubble-role">{role_label}</div>
-            <div class="bubble-content">{msg["content"]}</div>
-        </div>
-    """, unsafe_allow_html=True)
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
 # Tools Menu (Add Photos, Web Search, Voice, etc)
 st.markdown('<div style="height: 49px;"></div>', unsafe_allow_html=True)
@@ -1007,34 +1000,23 @@ if st.session_state.get('ai_processing', False):
         
         # --- PRE-PROCESSING: Build Context ---
         system_instructions = (
-            "CRITICAL: You are nick.ai, an extremely reliable and factual AI assistant. "
-            f"Today's EXACT date and time is {current_time}. "
-            "You have PERMANENT real-time access to the web. "
-            "You MUST use the provided search results to answer questions about current events. "
-            "IF THE SEARCH RESULTS DO NOT CONTAIN THE ANSWER (e.g., if a match hasn't started or a toss hasn't happened), "
-            "YOU MUST SAY: 'The information is not yet available as the event hasn't occurred.' "
-            "NEVER GUESS. NEVER HALLUCINATE. NEVER PROVIDE FICTIONAL MATCH RESULTS. "
-            "Accuracy is your #1 priority. If you are not 100% sure based ON THE PROVIDED SEARCH RESULTS, say you don't know yet. "
-            "Cite sources if you find the answer."
+            "You are nick.ai, a professional, high-performance AI coding assistant. "
+            f"Today's date is {current_time}. "
+            "Your objective is to provide ONE perfect, clean, and simple solution. "
+            "\n\nCODING PROTOCOL (Follow strictly):"
+            "\n1. USE NEAT FORMATTING: Use clear indentation and logical spacing."
+            "\n2. BEGINNER FRIENDLY: Use simple variable names and clear logic."
+            "\n3. MANDATORY COMMENTS: Add inline comments (#) to explain every major step."
+            "\n4. COMPLETE CODE: Always provide a full, runnable example with test data."
+            "\n5. NO REPETITION: Do not give 2-3 versions. Give the BEST one only."
+            "\n\nRESEARCH RULES:"
+            "\n- Use the provided search results to give genuine, factual answers."
+            "\n- If data is missing (like a live score for a match that hasn't started), say it explicitly."
+            "\n- Never guess or hallucinate."
         )
         api_messages = [{
             "role": "system",
-            "content": (
-                f"You are nick.ai, a smart AI assistant created by Nikshith Gurram. "
-                f"Today's date and time is {current_time}. "
-                "You have built-in real-time web search. Use it for any factual or current events question and give direct, accurate answers only. "
-                "\n\nCODING RULES (follow strictly):"
-                "\n- Give ONLY ONE simple, working solution. Never give 2 or 3 versions."
-                "\n- Write code like a beginner's tutorial: short variable names, simple logic, easy to read."
-                "\n- Add brief inline comments (# like this) to explain each step."
-                "\n- Never use complex abstractions, decorators, or advanced patterns unless asked."
-                "\n- Always show a simple example with test data so the user can run it immediately."
-                "\n- Keep the code as short as possible while still being clear."
-                "\n\nGENERAL RULES:"
-                "\n- Give direct answers. No unnecessary disclaimers."
-                "\n- Keep responses short and to the point."
-                "\n- Be friendly and professional."
-            )
+            "content": system_instructions
         }]
 
         # 1. File & Image Attachments
@@ -1115,24 +1097,15 @@ if st.session_state.get('ai_processing', False):
         )
         full_response = ""
 
-        # Stream response chunk by chunk
-        for chunk in stream:
-            if chunk.choices[0].delta.content:
-                full_response += chunk.choices[0].delta.content
-                response_placeholder.markdown(f"""
-                    <div class="chat-bubble assistant-bubble">
-                        <div class="bubble-role">nick.ai</div>
-                        <div class="bubble-content">{full_response}▌</div>
-                    </div>
-                """, unsafe_allow_html=True)
-
-        # Final render and save
-        response_placeholder.markdown(f"""
-            <div class="chat-bubble assistant-bubble">
-                <div class="bubble-role">nick.ai</div>
-                <div class="bubble-content">{full_response}</div>
-            </div>
-        """, unsafe_allow_html=True)
+        # --- RESPONSE: Live Streaming ---
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    full_response += chunk.choices[0].delta.content
+                    message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
         
         st.session_state.messages.append({"role": "assistant", "content": full_response})
         save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, 
