@@ -1026,7 +1026,36 @@ if st.session_state.get('ai_processing', False):
             )
         }]
         
-        # 1. Handle File & Image Attachments
+        # 1. Web Search (using DuckDuckGo - proven to work)
+        with st.status("🌐 nick.ai is searching the web...", expanded=False) as status:
+            try:
+                # Generate optimized search query
+                opt_res = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[{"role": "user", "content": f"Convert to a short Google search query (return ONLY the query, nothing else): {prompt}"}]
+                )
+                search_query = opt_res.choices[0].message.content.strip().strip('"').strip("'")
+                
+                # Search with DuckDuckGo (in-en region works best)
+                with DDGS() as ddgs:
+                    results = list(ddgs.text(search_query, max_results=5, backend="lite", region="in-en"))
+                
+                if not results:
+                    # Fallback: try worldwide region
+                    with DDGS() as ddgs:
+                        results = list(ddgs.text(search_query, max_results=5, backend="lite", region="wt-wt"))
+
+                if results:
+                    web_context = "REAL-TIME WEB DATA (use this to answer):\n\n"
+                    for i, r in enumerate(results, 1):
+                        web_context += f"[{i}] {r['title']}\n{r['body']}\nURL: {r['href']}\n\n"
+                    api_messages.append({"role": "system", "content": web_context})
+                    status.update(label=f"✅ Found live data ({len(results)} sources)", state="complete", expanded=False)
+                else:
+                    status.update(label="❓ No live data found", state="complete", expanded=False)
+            except Exception as e:
+                status.update(label="⚠️ Search failed", state="error", expanded=False)
+
         if uploaded_files:
             for file in uploaded_files:
                 try:
@@ -1073,26 +1102,27 @@ if st.session_state.get('ai_processing', False):
         response_placeholder = st.empty()
         full_response = ""
         
-        # Groq compound-beta: has NATIVE built-in web search
-        with st.status("🌐 nick.ai is searching the web...", expanded=False) as status:
-            response = client.chat.completions.create(
-                model="compound-beta",
-                messages=api_messages,
-            )
-            # Check if web search was used
-            if hasattr(response, 'x_groq') and response.x_groq:
-                status.update(label="✅ Web search complete", state="complete", expanded=False)
-            else:
-                status.update(label="✅ Done", state="complete", expanded=False)
-        
-        full_response = response.choices[0].message.content
-        stream = None  # No streaming for compound-beta
+        # --- RESPONSE: Stream with llama-3.3-70b-versatile ---
+        stream = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=api_messages,
+            stream=True,
+        )
+        full_response = ""
         
         thinking_placeholder.empty()
 
-        # compound-beta returns complete response (no streaming)
-        # full_response is already set above
-        
+        # Stream response chunk by chunk
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                full_response += chunk.choices[0].delta.content
+                response_placeholder.markdown(f"""
+                    <div class="chat-bubble assistant-bubble">
+                        <div class="bubble-role">nick.ai</div>
+                        <div class="bubble-content">{full_response}▌</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
         # Final render and save
         response_placeholder.markdown(f"""
             <div class="chat-bubble assistant-bubble">
