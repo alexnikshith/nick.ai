@@ -284,7 +284,9 @@ st.markdown("""
         position: fixed !important;
         top: 15px !important;
         right: 25px !important;
+        left: auto !important;
         z-index: 99999 !important;
+        width: auto !important;
     }
     #main-share-menu button {
         background-color: #1A1A1A !important;
