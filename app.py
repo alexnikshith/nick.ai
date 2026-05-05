@@ -916,8 +916,8 @@ for msg in st.session_state.messages:
             # Compact display
             st.image(img_url, caption=f"Generated: {img_prompt}", width=500)
             
-            # Action Buttons (De-congested & Aligned Left)
-            col1, col2, col3 = st.columns([1.2, 1.8, 4], gap="small")
+            # Action Buttons (Full-Width 50/50 Toolbar)
+            col1, col2 = st.columns([1, 1], gap="small")
             with col1:
                 st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:1px solid #FFFFFF; background:transparent; color:#FFFFFF; cursor:pointer;">🔗 Link</button></a>', unsafe_allow_html=True)
             with col2:
@@ -1147,8 +1147,8 @@ if st.session_state.get('ai_processing', False):
                 # Compact display
                 st.image(img_url, caption=f"Generated: {img_prompt}", width=500)
                 
-                # Action Buttons (De-congested & Aligned Left)
-                col1, col2, col3 = st.columns([1.2, 1.8, 4], gap="small")
+                # Action Buttons (Full-Width 50/50 Toolbar)
+                col1, col2 = st.columns([1, 1], gap="small")
                 with col1:
                     st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:1px solid #FFFFFF; background:transparent; color:#FFFFFF; cursor:pointer;">🔗 Link</button></a>', unsafe_allow_html=True)
                 with col2:
