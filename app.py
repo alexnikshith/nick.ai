@@ -997,15 +997,41 @@ if st.session_state.get('ai_processing', False):
         
         # 1. Handle Web Search
         if st.session_state.web_search_enabled:
-            search_limit = 3
-            with st.spinner("🌐 Searching the web..."):
+            search_limit = 5
+            with st.status("🌐 nick.ai is searching the web...", expanded=False) as status:
                 try:
-                    results = DDGS().text(prompt, max_results=search_limit)
-                    search_context = "Web Search Results:\n"
-                    for res in results:
-                        search_context += f"- {res['title']}: {res['body']}\n"
-                    api_messages.append({"role": "system", "content": search_context})
-                except: pass
+                    # Optimize the search query using Groq (very fast)
+                    try:
+                        query_optimizer_prompt = f"Convert this user request into a concise, effective search engine query. Only return the search query text, no explanations: \"{prompt}\""
+                        opt_res = client.chat.completions.create(
+                            model="llama3-8b-8192",
+                            messages=[{"role": "user", "content": query_optimizer_prompt}]
+                        )
+                        search_query = opt_res.choices[0].message.content.strip().strip('"')
+                    except:
+                        # Fallback to original prompt if optimization fails
+                        search_query = prompt[:120]
+                    
+                    with DDGS() as ddgs:
+                        results = list(ddgs.text(search_query, max_results=search_limit))
+                    
+                    if results:
+                        search_context = "### Web Search Results Found:\n\n"
+                        for i, res in enumerate(results, 1):
+                            search_context += f"**Result {i}: {res['title']}**\nSnippet: {res['body']}\nSource: {res['href']}\n\n"
+                        
+                        # Inject as a specialized system message with clear instructions
+                        api_messages.append({
+                            "role": "system", 
+                            "content": f"CRITICAL: You are provided with real-time web search results below. Use this information to answer the user's question accurately. If the results contain the answer, prioritize them over your internal training data. Cite sources by their Source URL if relevant.\n\n{search_context}"
+                        })
+                        status.update(label=f"✅ Found {len(results)} relevant web sources", state="complete", expanded=False)
+                    else:
+                        status.update(label="❓ No direct web results found", state="complete", expanded=False)
+                except Exception as e:
+                    status.update(label=f"❌ Search Error: {str(e)}", state="error", expanded=False)
+                    # Log to terminal for debugging
+                    print(f"WEB SEARCH ERROR: {e}")
 
         # 2. Handle File & Image Attachments
         if uploaded_files:
