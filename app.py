@@ -1009,8 +1009,12 @@ if st.session_state.get('ai_processing', False):
                     elif file.name.endswith('.pdf'):
                         pdf_reader = PyPDF2.PdfReader(file)
                         text = "".join(page.extract_text() for page in pdf_reader.pages)
-                        api_messages.append({"role": "system", "content": f"PDF '{file.name}':\n{text[:2000]}"})
-                except: pass
+                        api_messages.append({"role": "system", "content": f"PDF Content ('{file.name}'):\n{text[:2000]}"})
+                    elif file.name.endswith(('.csv', '.txt', '.py', '.js', '.html', '.css')):
+                        text = file.getvalue().decode("utf-8")
+                        api_messages.append({"role": "system", "content": f"File Content ('{file.name}'):\n{text[:3000]}"})
+                except Exception as file_err:
+                    api_messages.append({"role": "system", "content": f"Error reading file {file.name}: {str(file_err)}"})
 
         # 2. Add recent history (last 4 turns for better context)
         recent = [m for m in st.session_state.messages[-8:-1] if m["role"] in ("user", "assistant")]
