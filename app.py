@@ -228,18 +228,6 @@ st.markdown("""
         display: none !important; /* Chrome, Safari, Opera */
     }
     
-    /* Centered Welcoming Quote */
-    #centered-quote {
-        position: fixed !important;
-        top: 45% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 100% !important;
-        text-align: center !important;
-        pointer-events: none !important;
-        z-index: 0 !important;
-    }
-    
     /* Precise 5mm bottom gap for sidebar */
     [data-testid="stSidebarUserContent"] {
         padding-bottom: 1.2rem !important;
@@ -929,7 +917,8 @@ if not st.session_state.messages:
     import random
     quote = random.choice(welcoming_quotes)
     
-    st.markdown(f'<div id="centered-quote"><h1 style="color: #FFFFFF; font-family: \'Outfit\', sans-serif; font-weight: 500; font-size: 2.2rem; opacity: 0.9;">{quote}</h1></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 3vh;"></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="display: flex; justify-content: center; width: 100%;"><h1 style="text-align: center; color: #FFFFFF; font-family: \'Outfit\', sans-serif; font-weight: 500; font-size: 2.2rem; opacity: 0.9; width: 100%; margin: 0 auto;">{quote}</h1></div>', unsafe_allow_html=True)
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
