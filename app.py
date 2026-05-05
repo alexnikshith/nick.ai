@@ -451,39 +451,9 @@ st.markdown("""
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
+        margin-top: 1.5rem;
         margin-bottom: 0.5rem;
         padding-left: 0.5rem;
-    }
-
-    /* Sidebar Structural Layout (ChatGPT Style) */
-    [data-testid="stSidebarUserContent"] {
-        display: flex !important;
-        flex-direction: column !important;
-        height: 100vh !important;
-        padding: 0 !important;
-        gap: 0 !important;
-    }
-
-    .sidebar-top-section {
-        flex: 0 0 auto !important;
-        padding: 1.5rem 1rem 0.5rem 1rem !important;
-    }
-
-    .sidebar-scroll-area {
-        flex: 1 1 auto !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        padding: 0.5rem 1rem !important;
-        scrollbar-width: thin !important;
-        scrollbar-color: rgba(255, 255, 255, 0.1) transparent !important;
-    }
-
-    .sidebar-bottom-section {
-        flex: 0 0 auto !important;
-        padding: 0.5rem 1rem 1.5rem 1rem !important;
-        margin-top: auto !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-        background-color: #000000 !important;
     }
 
     /* Dashboard Widget Buttons: Perfect Symmetry */
@@ -771,8 +741,7 @@ st.markdown("""
 
 # --- SIDEBAR UI (ChatGPT Style) ---
 with st.sidebar:
-    # FIXED TOP SECTION
-    st.markdown('<div class="sidebar-top-section">', unsafe_allow_html=True)
+    # Fixed Header Section
     logo_base64 = get_base64_image("logo.png")
     st.markdown(f"""
         <div class="sidebar-branding">
@@ -783,6 +752,7 @@ with st.sidebar:
                 <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
             </div>
         </div>
+        <div class="sidebar-content-spacer"></div>
     """, unsafe_allow_html=True)
     
     # 1. TOP MENU ITEMS
@@ -826,10 +796,8 @@ with st.sidebar:
     
     # Turbo Mode Toggle
     st.session_state.codex_mode = st.toggle("🚀 Turbo Mode (70B)", value=st.session_state.codex_mode)
-    st.markdown('</div>', unsafe_allow_html=True)
     
-    # SCROLLABLE MIDDLE SECTION
-    st.markdown('<div class="sidebar-scroll-area">', unsafe_allow_html=True)
+    # 2. RECENTS (Chat History)
     st.markdown("### Recents")
     all_chats = get_all_chats()
     
@@ -912,10 +880,9 @@ with st.sidebar:
                         st.session_state.chat_title = "New chat"
                         st.session_state.messages = []
                     st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # FIXED BOTTOM SECTION
-    st.markdown('<div class="sidebar-bottom-section">', unsafe_allow_html=True)
+
+    # User Profile at the bottom (Interactive)
+    st.markdown("---")
     with st.popover(f"👤 {st.session_state.user_display_name}", use_container_width=True):
         st.markdown("### Edit profile")
         
@@ -949,7 +916,6 @@ with st.sidebar:
                 st.session_state.user_username = new_username
                 st.toast("Profile updated!")
                 st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- MAIN CHAT UI ---
 st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
