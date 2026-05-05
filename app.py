@@ -947,12 +947,26 @@ if not st.session_state.messages:
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         content = msg["content"]
+        # Detection logic for both standard and fallback triggers
+        img_trigger = None
         if "[IMAGE:" in content:
+            img_trigger = "[IMAGE:"
+        elif "Generated:" in content:
+            img_trigger = "Generated:"
+        elif "Prompt:" in content:
+            img_trigger = "Prompt:"
+
+        if img_trigger:
             import urllib.parse
-            parts = content.split("[IMAGE:")
+            parts = content.split(img_trigger)
             text_before = parts[0].strip()
-            img_prompt = parts[1].split("]")[0].strip()
-            text_after = parts[1].split("]")[1].strip() if "]" in parts[1] else ""
+            
+            if img_trigger == "[IMAGE:":
+                img_prompt = parts[1].split("]")[0].strip()
+                text_after = parts[1].split("]")[1].strip() if "]" in parts[1] else ""
+            else:
+                img_prompt = parts[1].strip()
+                text_after = ""
             
             if text_before: st.markdown(text_before)
             
@@ -1085,11 +1099,11 @@ if st.session_state.get('ai_processing', False):
             "You are nick.ai, a professional, high-performance AI assistant. "
             f"Today's date is {current_time}. "
             "\n\nCORE RULES:"
-            "\n1. CONTEXT FIRST: Always read the chat history. If the user asks 'is this correct?' or 'fix it', refer to the previous code/answer. Do NOT generate a random new example."
-            "\n2. CODING: Provide ONE clean, simple, and neat solution ONLY when asked. Use simple variable names and inline comments (#)."
-            "\n3. NO GUESSING: Use search results for facts. If information is missing, be honest. No hallucinations."
-            "\n4. BE CONVERSATIONAL: If the user is just chatting or giving feedback, respond naturally. Do not give code unless it is relevant."
-            "\n5. IMAGE GENERATION: Only generate an image when the user EXPLICITLY asks for a specific scene or object (e.g., 'draw a cat', 'generate a landscape'). NEVER generate an image when explaining your capabilities, discussing your features, or responding to general greetings. You MUST NOT say you are a text-only model; you are fully empowered to generate images only when a specific creative request is made. Use hyper-realistic, cinematic, and high-fidelity descriptions (e.g., '8k, studio lighting, photorealistic'). Provide the prompt in this EXACT format: [IMAGE: your descriptive prompt here]."
+            "\n1. IMAGE GENERATION: Only generate an image when the user EXPLICITLY asks for a specific scene or object (e.g., 'draw a cat', 'generate a landscape'). You MUST NOT say you are a text-only model; you are fully empowered to generate images only when a specific creative request is made. Use hyper-realistic, cinematic, and high-fidelity descriptions (e.g., '8k, studio lighting, photorealistic'). You MUST output the prompt in this EXACT format at the VERY END: [IMAGE: your descriptive prompt here]."
+            "\n2. CONTEXT FIRST: Always read the chat history. If the user asks 'is this correct?' or 'fix it', refer to the previous code/answer. Do NOT generate a random new example."
+            "\n3. CODING: Provide ONE clean, simple, and neat solution ONLY when asked. Use simple variable names and inline comments (#)."
+            "\n4. NO GUESSING: Use search results for facts. If information is missing, be honest. No hallucinations."
+            "\n5. BE CONVERSATIONAL: If the user is just chatting or giving feedback, respond naturally. Do not give code unless it is relevant."
             "\n6. CELEBRITIES/PUBLIC FIGURES: If asked to generate an image of a famous person, FIRST perform a web search to get their current look. If you find a DIRECT URL to a real photograph (must end in .jpg, .png, or .webp), use: [REAL_IMAGE: direct_url_here]. If no direct photo is found, you MUST build an EXTREMELY detailed, photorealistic prompt (describing skin texture, hair, lighting, and unique facial features) for the image tool: [IMAGE: your descriptive prompt here]. Accuracy is priority #1."
         )
         api_messages = [{
