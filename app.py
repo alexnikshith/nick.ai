@@ -894,7 +894,24 @@ if not st.session_state.messages:
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+        content = msg["content"]
+        if "[IMAGE:" in content:
+            import urllib.parse
+            parts = content.split("[IMAGE:")
+            text_before = parts[0].strip()
+            img_prompt = parts[1].split("]")[0].strip()
+            text_after = parts[1].split("]")[1].strip() if "]" in parts[1] else ""
+            
+            if text_before: st.markdown(text_before)
+            
+            # Render Image
+            encoded_prompt = urllib.parse.quote(img_prompt)
+            img_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&nologo=true"
+            st.image(img_url, caption=f"Generated: {img_prompt}", use_container_width=True)
+            
+            if text_after: st.markdown(text_after)
+        else:
+            st.markdown(content)
 
 # Tools Menu (Add Photos, Web Search, Voice, etc)
 st.markdown('<div style="height: 49px;"></div>', unsafe_allow_html=True)
