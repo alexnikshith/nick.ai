@@ -15,16 +15,27 @@ import os
 from groq import Groq
 import pytz
 
-# BULLETPROOF FIX for FFmpeg (WinError 2)
-# Manually inject the FFmpeg path into the system environment for this session
-FFMPEG_DIR = r"C:\Users\Nikshith Gurram\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1-full_build\bin"
-if FFMPEG_DIR not in os.environ["PATH"]:
-    os.environ["PATH"] += os.pathsep + FFMPEG_DIR
+# --- SMART FFMPEG DETECTION (Local vs Cloud) ---
+import platform
 
-# Tell pydub exactly where the executables are
-FFMPEG_PATH = os.path.join(FFMPEG_DIR, "ffmpeg.exe")
+# Detect if we are on Local (Windows) or Cloud (Linux)
+IS_WINDOWS = platform.system() == "Windows"
+
+if IS_WINDOWS:
+    # Local Windows Path
+    FFMPEG_DIR = r"C:\Users\Nikshith Gurram\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1-full_build\bin"
+    if FFMPEG_DIR not in os.environ["PATH"]:
+        os.environ["PATH"] += os.pathsep + FFMPEG_DIR
+    FFMPEG_PATH = os.path.join(FFMPEG_DIR, "ffmpeg.exe")
+    FFPROBE_PATH = os.path.join(FFMPEG_DIR, "ffprobe.exe")
+else:
+    # Streamlit Cloud (Linux)
+    FFMPEG_PATH = "ffmpeg"
+    FFPROBE_PATH = "ffprobe"
+
+# Set paths for pydub
 AudioSegment.converter = FFMPEG_PATH
-AudioSegment.ffprobe = os.path.join(FFMPEG_DIR, "ffprobe.exe")
+AudioSegment.ffprobe = FFPROBE_PATH
 from datetime import datetime
 from tavily import TavilyClient
 import PyPDF2
