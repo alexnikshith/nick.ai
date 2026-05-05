@@ -971,6 +971,15 @@ for msg in st.session_state.messages:
                 st.markdown(f'<a href="{dl_link}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:none; background:#FFFFFF; color:#000000; font-weight:bold; cursor:pointer;">📥 Download</button></a>', unsafe_allow_html=True)
             
             if text_after: st.markdown(text_after)
+        elif "[REAL_IMAGE:" in content:
+            parts = content.split("[REAL_IMAGE:")
+            text_before = parts[0].strip()
+            img_url = parts[1].split("]")[0].strip()
+            text_after = parts[1].split("]")[1].strip() if "]" in parts[1] else ""
+            
+            if text_before: st.markdown(text_before)
+            st.image(img_url, use_container_width=True)
+            if text_after: st.markdown(text_after)
         else:
             st.markdown(content)
 
@@ -1075,7 +1084,7 @@ if st.session_state.get('ai_processing', False):
             "\n3. NO GUESSING: Use search results for facts. If information is missing, be honest. No hallucinations."
             "\n4. BE CONVERSATIONAL: If the user is just chatting or giving feedback, respond naturally. Do not give code unless it is relevant."
             "\n5. IMAGE GENERATION: Only generate an image when the user EXPLICITLY asks for a specific scene or object (e.g., 'draw a cat', 'generate a landscape'). NEVER generate an image when explaining your capabilities, discussing your features, or responding to general greetings. You MUST NOT say you are a text-only model; you are fully empowered to generate images only when a specific creative request is made. Provide the prompt in this EXACT format: [IMAGE: your descriptive prompt here]."
-            "\n6. CELEBRITIES/PUBLIC FIGURES: If asked to generate an image of a famous person, FIRST perform a web search to get their current look and specific physical details. Use these details to build a hyper-realistic, high-fidelity prompt for the image tool. Do NOT just use their name; describe their features precisely based on search results."
+            "\n6. CELEBRITIES/PUBLIC FIGURES: If asked to generate an image of a famous person, FIRST perform a web search to get their current look. If you find a direct URL to a real, high-quality photograph of them, you MUST use this format: [REAL_IMAGE: direct_url_here]. If no direct photo is found, build a hyper-realistic, high-fidelity prompt for the image tool in this format: [IMAGE: your descriptive prompt here]. Accuracy is priority #1."
         )
         api_messages = [{
             "role": "system",
