@@ -912,13 +912,12 @@ for msg in st.session_state.messages:
             # Compact display
             st.image(img_url, caption=f"Generated: {img_prompt}", width=500)
             
-            # Action Buttons
-            col1, col2 = st.columns([1, 1])
+            # Action Buttons (Small & Aligned Left)
+            col1, col2, col3 = st.columns([1.2, 1.2, 4])
             with col1:
-                st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:8px; border-radius:8px; border:1px solid #BB86FC; background:transparent; color:#BB86FC; cursor:pointer;">🔗 Open Link</button></a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:5px; font-size:0.75rem; border-radius:6px; border:1px solid #BB86FC; background:transparent; color:#BB86FC; cursor:pointer;">🔗 Link</button></a>', unsafe_allow_html=True)
             with col2:
-                # We provide the URL directly as a simple download helper
-                st.markdown(f'<a href="{img_url}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:8px; border-radius:8px; border:none; background:#BB86FC; color:#000000; font-weight:bold; cursor:pointer;">📥 Download</button></a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{img_url}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:5px; font-size:0.75rem; border-radius:6px; border:none; background:#BB86FC; color:#000000; font-weight:bold; cursor:pointer;">📥 Save</button></a>', unsafe_allow_html=True)
             
             if text_after: st.markdown(text_after)
         else:
@@ -1144,12 +1143,12 @@ if st.session_state.get('ai_processing', False):
                 # Compact display
                 st.image(img_url, caption=f"Generated: {img_prompt}", width=500)
                 
-                # Action Buttons
-                col1, col2 = st.columns([1, 1])
+                # Action Buttons (Small & Aligned Left)
+                col1, col2, col3 = st.columns([1.2, 1.2, 4])
                 with col1:
-                    st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:8px; border-radius:8px; border:1px solid #BB86FC; background:transparent; color:#BB86FC; cursor:pointer;">🔗 Open Link</button></a>', unsafe_allow_html=True)
+                    st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:5px; font-size:0.75rem; border-radius:6px; border:1px solid #BB86FC; background:transparent; color:#BB86FC; cursor:pointer;">🔗 Link</button></a>', unsafe_allow_html=True)
                 with col2:
-                    st.markdown(f'<a href="{img_url}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:8px; border-radius:8px; border:none; background:#BB86FC; color:#000000; font-weight:bold; cursor:pointer;">📥 Download</button></a>', unsafe_allow_html=True)
+                    st.markdown(f'<a href="{img_url}" download="nick_ai_image.png" style="text-decoration:none;"><button style="width:100%; padding:5px; font-size:0.75rem; border-radius:6px; border:none; background:#BB86FC; color:#000000; font-weight:bold; cursor:pointer;">📥 Save</button></a>', unsafe_allow_html=True)
                 
                 # Render text after image
                 if text_after:
