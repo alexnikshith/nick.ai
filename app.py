@@ -812,10 +812,16 @@ with st.sidebar:
     # Sort by Pinned status first, then by date
     all_chats.sort(key=lambda x: (x.get('pinned', False), x.get('updated_at', '')), reverse=True)
     
+    # Pagination Logic
+    if "chats_limit" not in st.session_state:
+        st.session_state.chats_limit = 10
+    
+    visible_chats = all_chats[:st.session_state.chats_limit]
+    
     if not all_chats:
         st.caption("No previous chats.")
         
-    for chat in all_chats:
+    for chat in visible_chats:
         is_pinned = chat.get('pinned', False)
         pin_icon = "📌 " if is_pinned else ""
         short_title = chat['title']
@@ -880,6 +886,12 @@ with st.sidebar:
                         st.session_state.chat_title = "New chat"
                         st.session_state.messages = []
                     st.rerun()
+                    
+    # Load More Button
+    if len(all_chats) > st.session_state.chats_limit:
+        if st.button("🔽 Load More", use_container_width=True):
+            st.session_state.chats_limit += 10
+            st.rerun()
 
     # User Profile at the bottom (Interactive)
     st.markdown("---")
