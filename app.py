@@ -1025,37 +1025,8 @@ if st.session_state.get('ai_processing', False):
                 "\n- Be friendly and professional."
             )
         }]
-        
-        # 1. Web Search (using DuckDuckGo - proven to work)
-        with st.status("🌐 nick.ai is searching the web...", expanded=False) as status:
-            try:
-                # Generate optimized search query
-                opt_res = client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
-                    messages=[{"role": "user", "content": f"Convert to a short Google search query (return ONLY the query, nothing else): {prompt}"}]
-                )
-                search_query = opt_res.choices[0].message.content.strip().strip('"').strip("'")
-                
-                # Search with DuckDuckGo (in-en region works best)
-                with DDGS() as ddgs:
-                    results = list(ddgs.text(search_query, max_results=5, backend="lite", region="in-en"))
-                
-                if not results:
-                    # Fallback: try worldwide region
-                    with DDGS() as ddgs:
-                        results = list(ddgs.text(search_query, max_results=5, backend="lite", region="wt-wt"))
 
-                if results:
-                    web_context = "REAL-TIME WEB DATA (use this to answer):\n\n"
-                    for i, r in enumerate(results, 1):
-                        web_context += f"[{i}] {r['title']}\n{r['body']}\nURL: {r['href']}\n\n"
-                    api_messages.append({"role": "system", "content": web_context})
-                    status.update(label=f"✅ Found live data ({len(results)} sources)", state="complete", expanded=False)
-                else:
-                    status.update(label="❓ No live data found", state="complete", expanded=False)
-            except Exception as e:
-                status.update(label="⚠️ Search failed", state="error", expanded=False)
-
+        # 1. File & Image Attachments
         if uploaded_files:
             for file in uploaded_files:
                 try:
@@ -1064,22 +1035,22 @@ if st.session_state.get('ai_processing', False):
                         api_messages.append({
                             "role": "user", 
                             "content": [
-                                {"type": "text", "text": "I have attached an image. Please analyze it."},
+                                {"type": "text", "text": "Analyze this image."},
                                 {"type": "image_url", "image_url": {"url": f"data:{file.type};base64,{img_data}"}}
                             ]
                         })
                     elif file.name.endswith('.pdf'):
                         pdf_reader = PyPDF2.PdfReader(file)
                         text = "".join(page.extract_text() for page in pdf_reader.pages)
-                        api_messages.append({"role": "system", "content": f"Context from attached PDF '{file.name}':\n{text[:3000]}"})
+                        api_messages.append({"role": "system", "content": f"PDF '{file.name}':\n{text[:2000]}"})
                 except: pass
 
-        # 3. Add History (last 2 exchanges only to stay within token limits)
+        # 2. Add recent history (last 2 turns only)
         recent = [m for m in st.session_state.messages[-4:-1] if m["role"] in ("user", "assistant")]
         for m in recent:
             content = m["content"]
             if isinstance(content, str):
-                content = content[:500]  # Truncate long messages
+                content = content[:400]
             api_messages.append({"role": m["role"], "content": content})
         api_messages.append({"role": "user", "content": prompt})
 
@@ -1098,30 +1069,42 @@ if st.session_state.get('ai_processing', False):
                 </div>
             """, unsafe_allow_html=True)
 
-        # --- RESPONSE: Live Streaming into Custom Bubble ---
         response_placeholder = st.empty()
         full_response = ""
-        
-        # --- RESPONSE: Stream with llama-3.3-70b-versatile ---
-        stream = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=api_messages,
-            stream=True,
-        )
-        full_response = ""
-        
-        thinking_placeholder.empty()
 
-        # Stream response chunk by chunk
-        for chunk in stream:
-            if chunk.choices[0].delta.content:
-                full_response += chunk.choices[0].delta.content
-                response_placeholder.markdown(f"""
-                    <div class="chat-bubble assistant-bubble">
-                        <div class="bubble-role">nick.ai</div>
-                        <div class="bubble-content">{full_response}▌</div>
-                    </div>
-                """, unsafe_allow_html=True)
+        # --- RESPONSE: Use Groq compound-beta-mini (native web search) ---
+        # Falls back to llama-3.3-70b-versatile if rate limited
+        try:
+            response = client.chat.completions.create(
+                model="compound-beta-mini",
+                messages=api_messages,
+            )
+            full_response = response.choices[0].message.content
+        except Exception as model_err:
+            if "429" in str(model_err) or "rate_limit" in str(model_err):
+                # Rate limited - fall back to regular model with DDG search
+                with st.status("🌐 Searching the web...", expanded=False) as status:
+                    try:
+                        with DDGS() as ddgs:
+                            results = list(ddgs.text(prompt, max_results=5, backend="lite", region="in-en"))
+                        if results:
+                            web_ctx = "WEB RESULTS:\n" + "\n".join(f"[{i}] {r['title']}: {r['body']}" for i,r in enumerate(results,1))
+                            api_messages.insert(-1, {"role": "system", "content": web_ctx})
+                            status.update(label="✅ Done", state="complete")
+                    except: 
+                        status.update(label="⚠️ Search skipped", state="error")
+                stream = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=api_messages,
+                    stream=True,
+                )
+                for chunk in stream:
+                    if chunk.choices[0].delta.content:
+                        full_response += chunk.choices[0].delta.content
+            else:
+                raise model_err
+
+        thinking_placeholder.empty()
 
         # Final render and save
         response_placeholder.markdown(f"""
