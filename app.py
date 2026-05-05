@@ -1069,6 +1069,27 @@ with st.popover("➕"):
     
     # 2. File Uploads
     uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True, label_visibility="collapsed")
+    
+    st.markdown("---")
+    
+    # 3. Live Dashboard Widgets
+    st.markdown("#### Live Dashboard")
+    wcol1, wcol2, wcol3 = st.columns(3)
+    with wcol1:
+        if st.button("🌦️ Weather", use_container_width=True):
+            st.session_state.messages.append({"role": "user", "content": "Get live weather updates"})
+            st.session_state.ai_processing = True
+            st.rerun()
+    with wcol2:
+        if st.button("📈 Market", use_container_width=True):
+            st.session_state.messages.append({"role": "user", "content": "Check current stock and crypto prices"})
+            st.session_state.ai_processing = True
+            st.rerun()
+    with wcol3:
+        if st.button("📰 Tech", use_container_width=True):
+            st.session_state.messages.append({"role": "user", "content": "Show top tech news headlines"})
+            st.session_state.ai_processing = True
+            st.rerun()
 st.markdown('</div>', unsafe_allow_html=True)
 
 
