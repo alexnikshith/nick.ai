@@ -481,6 +481,17 @@ st.markdown("""
         padding: 0 1rem 2.2rem !important;
     }
 
+    /* Nuke the default Streamlit bottom padding (The 'Ghost Gap') */
+    .main .block-container {
+        padding-bottom: 4rem !important;
+        padding-top: 2rem !important;
+    }
+    
+    /* Compress chat message margins */
+    .stChatMessage {
+        margin-bottom: -1rem !important;
+    }
+
     /* Outer chat input wrapper - transparent, no border */
     [data-testid="stChatInput"] {
         background: transparent !important;
