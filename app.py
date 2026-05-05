@@ -262,8 +262,14 @@ st.markdown("""
     }
     .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
     .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
-    .input-mic, .input-tools {
+    .input-mic {
         display: none !important;
+    }
+    .input-tools {
+        position: fixed !important;
+        bottom: 85px !important;
+        left: 20px !important;
+        z-index: 9999 !important;
     }
     
     /* Hide chat input scrollbar handle */
@@ -557,9 +563,12 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* Input tools container (We will use JS to move this into the chat input) */
+    /* Input tools container - Positioned near chat bar */
     .input-tools {
-        display: none; /* Hide initially to prevent flash */
+        position: fixed !important;
+        bottom: 85px !important;
+        left: 20px !important;
+        z-index: 9999 !important;
     }
     
     /* Style the Popover Button to match the image */
@@ -909,7 +918,6 @@ for msg in st.session_state.messages:
             st.markdown(content)
 
 # Tools Menu (Add Photos, Web Search, Voice, etc)
-st.markdown('<div style="height: 49px;"></div>', unsafe_allow_html=True)
 st.markdown('<div class="input-tools">', unsafe_allow_html=True)
 with st.popover("➕"):
     st.markdown("#### Tools & Voice")
