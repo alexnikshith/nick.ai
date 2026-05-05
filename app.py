@@ -266,10 +266,8 @@ st.markdown("""
         display: none !important;
     }
     #plus-button-container {
-        position: fixed !important;
-        bottom: 25px !important;
-        left: 20px !important;
-        z-index: 99999 !important;
+        display: block !important;
+        margin-top: 10px !important;
     }
     
     /* Hide chat input scrollbar handle */
@@ -563,12 +561,10 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* Force Plus Button to bottom-most position */
+    /* Restored natural flow for tools */
     #plus-button-container {
-        position: fixed !important;
-        bottom: 25px !important;
-        left: 20px !important;
-        z-index: 99999 !important;
+        display: block !important;
+        margin-top: 10px !important;
     }
     
     /* Style the Popover Button to match the image */
@@ -918,6 +914,7 @@ for msg in st.session_state.messages:
             st.markdown(content)
 
 # Tools Menu (Add Photos, Web Search, Voice, etc)
+st.markdown('<div style="height: 300px;"></div>', unsafe_allow_html=True)
 st.markdown('<div id="plus-button-container">', unsafe_allow_html=True)
 with st.popover("➕"):
     st.markdown("#### Tools & Voice")
