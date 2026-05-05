@@ -987,6 +987,7 @@ if st.session_state.get('ai_processing', False):
             "\n2. CODING: Provide ONE clean, simple, and neat solution ONLY when asked. Use simple variable names and inline comments (#)."
             "\n3. NO GUESSING: Use search results for facts. If information is missing, be honest. No hallucinations."
             "\n4. BE CONVERSATIONAL: If the user is just chatting or giving feedback, respond naturally. Do not give code unless it is relevant."
+            "\n5. IMAGE GENERATION: If the user asks to generate/draw an image, describe it briefly and then provide the prompt in this EXACT format: [IMAGE: your descriptive prompt here]. I will handle the rendering."
         )
         api_messages = [{
             "role": "system",
@@ -1066,16 +1067,27 @@ if st.session_state.get('ai_processing', False):
             except Exception as e:
                 status.update(label=f"⚠️ Tavily Search failed: {str(e)}", state="error", expanded=False)
 
-        # --- FINAL RESPONSE: llama-3.3-70b-versatile ---
+        # --- FINAL RESPONSE: Smart Fallback (70b -> 8b) ---
         thinking_placeholder.empty()
-        stream = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=api_messages,
-            stream=True,
-        )
-        full_response = ""
+        try:
+            stream = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=api_messages,
+                stream=True,
+            )
+        except Exception as e:
+            if "429" in str(e):
+                # Fallback to 8b if 70b is rate limited
+                st.warning("⚠️ High-performance model is busy. Switching to 'Fast Mode' (8B)...")
+                stream = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=api_messages,
+                    stream=True,
+                )
+            else:
+                raise e
 
-        # --- RESPONSE: Live Streaming ---
+        # --- RESPONSE: Live Streaming & Image Rendering ---
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
@@ -1083,7 +1095,28 @@ if st.session_state.get('ai_processing', False):
                 if chunk.choices[0].delta.content:
                     full_response += chunk.choices[0].delta.content
                     message_placeholder.markdown(full_response + "▌")
-            message_placeholder.markdown(full_response)
+            
+            # --- IMAGE GENERATION LOGIC ---
+            if "[IMAGE:" in full_response:
+                import urllib.parse
+                parts = full_response.split("[IMAGE:")
+                text_before = parts[0]
+                img_prompt = parts[1].split("]")[0].strip()
+                text_after = parts[1].split("]")[1] if "]" in parts[1] else ""
+                
+                # Render text before image
+                message_placeholder.markdown(text_before)
+                
+                # Generate and Render Image (using Pollinations.ai)
+                encoded_prompt = urllib.parse.quote(img_prompt)
+                img_url = f"https://pollinations.ai/p/{encoded_prompt}?width=1024&height=1024&seed={random.randint(1,1000)}&nologo=true"
+                st.image(img_url, caption=f"Generated: {img_prompt}", use_container_width=True)
+                
+                # Render text after image
+                if text_after:
+                    st.markdown(text_after)
+            else:
+                message_placeholder.markdown(full_response)
         
         st.session_state.messages.append({"role": "assistant", "content": full_response})
         save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, 
