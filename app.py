@@ -1147,18 +1147,24 @@ if st.session_state.get('ai_processing', False):
                 # Initialize Tavily
                 tavily = TavilyClient(api_key="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")
                 
-                # Search for the query
-                # We specifically look for "current" context for things like IPL
-                search_results = tavily.search(query=prompt, search_depth="advanced", max_results=5)
+                # Search for the query with Image discovery enabled
+                search_results = tavily.search(query=prompt, search_depth="advanced", max_results=5, include_images=True)
                 
-                if search_results and search_results.get("results"):
+                if search_results and (search_results.get("results") or search_results.get("images")):
                     web_ctx = "### REAL-TIME WEB DATA (FROM TAVILY):\n\n"
-                    for i, r in enumerate(search_results["results"], 1):
-                        web_ctx += f"**[{i}] {r['title']}**\n{r['content']}\nSource: {r['url']}\n\n"
+                    
+                    if search_results.get("results"):
+                        for i, r in enumerate(search_results["results"], 1):
+                            web_ctx += f"**[{i}] {r['title']}**\n{r['content']}\nSource: {r['url']}\n\n"
+                    
+                    if search_results.get("images"):
+                        web_ctx += "\n### DISCOVERED REAL IMAGE URLS (Use these for [REAL_IMAGE:] if relevant):\n"
+                        for img_url in search_results["images"]:
+                            web_ctx += f"- {img_url}\n"
                     
                     # Add to messages as context
                     api_messages.insert(1, {"role": "system", "content": web_ctx})
-                    status.update(label=f"✅ Research complete ({len(search_results['results'])} sources)", state="complete", expanded=False)
+                    status.update(label=f"✅ Research complete ({len(search_results.get('results', []))} sources + {len(search_results.get('images', []))} images)", state="complete", expanded=False)
                 else:
                     status.update(label="❓ No live data found on Tavily", state="complete", expanded=False)
             except Exception as e:
