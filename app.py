@@ -827,23 +827,23 @@ st.sidebar.markdown("---")
 with st.sidebar.popover("📤 Share / Options", use_container_width=True):
     st.subheader("Options")
         
-        # 1. RENAME
-        new_title = st.text_input("Rename Chat", value=st.session_state.chat_title, key="rename_input")
-        if st.button("Save Name", use_container_width=True):
-            st.session_state["pending_rename"] = new_title
-            
-        st.markdown("---")
+    # 1. RENAME
+    new_title = st.text_input("Rename Chat", value=st.session_state.chat_title, key="rename_input")
+    if st.button("Save Name", use_container_width=True):
+        st.session_state["pending_rename"] = new_title
         
-        # 2. SHARE
-        st.markdown("**Universal Share Link:**")
-        share_url = f"https://nick-ai.streamlit.app/?share={st.session_state.current_chat_id}"
-        st.code(share_url, language=None)
-        
-        st.markdown("---")
-        
-        # 3. DELETE
-        if st.button("🗑️ Delete Chat", use_container_width=True, type="secondary"):
-            st.session_state["pending_delete"] = True
+    st.markdown("---")
+    
+    # 2. SHARE
+    st.markdown("**Universal Share Link:**")
+    share_url = f"https://nick-ai.streamlit.app/?share={st.session_state.current_chat_id}"
+    st.code(share_url, language=None)
+    
+    st.markdown("---")
+    
+    # 3. DELETE
+    if st.button("🗑️ Delete Chat", use_container_width=True, type="secondary"):
+        st.session_state["pending_delete"] = True
 
 # Process deferred actions OUTSIDE the popover
 if st.session_state.get("pending_rename"):
