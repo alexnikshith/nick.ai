@@ -26,7 +26,7 @@ FFMPEG_PATH = os.path.join(FFMPEG_DIR, "ffmpeg.exe")
 AudioSegment.converter = FFMPEG_PATH
 AudioSegment.ffprobe = os.path.join(FFMPEG_DIR, "ffprobe.exe")
 from datetime import datetime
-from duckduckgo_search import DDGS
+from tavily import TavilyClient
 import PyPDF2
 import streamlit.components.v1 as components
 # Setup data directory to store chat histories
@@ -1072,39 +1072,48 @@ if st.session_state.get('ai_processing', False):
         response_placeholder = st.empty()
         full_response = ""
 
-        # --- RESPONSE: Use Groq compound-beta-mini (native web search) ---
-        # Falls back to llama-3.3-70b-versatile if rate limited
-        try:
-            response = client.chat.completions.create(
-                model="compound-beta-mini",
-                messages=api_messages,
-            )
-            full_response = response.choices[0].message.content
-        except Exception as model_err:
-            if "429" in str(model_err) or "rate_limit" in str(model_err):
-                # Rate limited - fall back to regular model with DDG search
-                with st.status("🌐 Searching the web...", expanded=False) as status:
-                    try:
-                        with DDGS() as ddgs:
-                            results = list(ddgs.text(prompt, max_results=5, backend="lite", region="in-en"))
-                        if results:
-                            web_ctx = "WEB RESULTS:\n" + "\n".join(f"[{i}] {r['title']}: {r['body']}" for i,r in enumerate(results,1))
-                            api_messages.insert(-1, {"role": "system", "content": web_ctx})
-                            status.update(label="✅ Done", state="complete")
-                    except: 
-                        status.update(label="⚠️ Search skipped", state="error")
-                stream = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=api_messages,
-                    stream=True,
-                )
-                for chunk in stream:
-                    if chunk.choices[0].delta.content:
-                        full_response += chunk.choices[0].delta.content
-            else:
-                raise model_err
+        # --- RESPONSE: Use Tavily (Professional AI Search) ---
+        with st.status("🌐 nick.ai is researching using Tavily...", expanded=False) as status:
+            try:
+                # Initialize Tavily
+                tavily = TavilyClient(api_key="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")
+                
+                # Search for the query
+                # We specifically look for "current" context for things like IPL
+                search_results = tavily.search(query=prompt, search_depth="advanced", max_results=5)
+                
+                if search_results and search_results.get("results"):
+                    web_ctx = "### REAL-TIME WEB DATA (FROM TAVILY):\n\n"
+                    for i, r in enumerate(search_results["results"], 1):
+                        web_ctx += f"**[{i}] {r['title']}**\n{r['content']}\nSource: {r['url']}\n\n"
+                    
+                    # Add to messages as context
+                    api_messages.insert(1, {"role": "system", "content": web_ctx})
+                    status.update(label=f"✅ Research complete ({len(search_results['results'])} sources)", state="complete", expanded=False)
+                else:
+                    status.update(label="❓ No live data found on Tavily", state="complete", expanded=False)
+            except Exception as e:
+                status.update(label=f"⚠️ Tavily Search failed: {str(e)}", state="error", expanded=False)
 
+        # --- FINAL RESPONSE: llama-3.3-70b-versatile ---
         thinking_placeholder.empty()
+        stream = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=api_messages,
+            stream=True,
+        )
+        full_response = ""
+
+        # Stream response chunk by chunk
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                full_response += chunk.choices[0].delta.content
+                response_placeholder.markdown(f"""
+                    <div class="chat-bubble assistant-bubble">
+                        <div class="bubble-role">nick.ai</div>
+                        <div class="bubble-content">{full_response}▌</div>
+                    </div>
+                """, unsafe_allow_html=True)
 
         # Final render and save
         response_placeholder.markdown(f"""

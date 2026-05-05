@@ -9,3 +9,5 @@ numpy
 soundfile
 groq
 pytz
+tavily-python
+googlesearch-python
