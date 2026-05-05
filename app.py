@@ -360,11 +360,10 @@ st.markdown("""
         --accent: #00F2FF;
     }
     
-    div[data-testid="stSidebar"] div.stButton > button {
-        background-color: transparent !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        color: #E0E0E0 !important;
-        transition: all 0.3s ease !important;
+    div[data-testid="stSidebar"] div.stButton > button,
+    div[data-testid="stSidebar"] div.stButton > button div,
+    div[data-testid="stSidebar"] div.stButton > button p,
+    div[data-testid="stSidebar"] div.stButton > button span {
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
@@ -730,7 +729,7 @@ with st.sidebar:
     for chat in all_chats:
         is_pinned = chat.get('pinned', False)
         pin_icon = "📌 " if is_pinned else ""
-        short_title = chat['title'][:20] + "..." if len(chat['title']) > 20 else chat['title']
+        short_title = chat['title']
         
         # Sidebar columns for Chat Title and Menu
         c1, c2 = st.columns([0.8, 0.2])
