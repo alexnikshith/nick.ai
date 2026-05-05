@@ -469,13 +469,15 @@ st.markdown("""
         padding: 0 !important;
     }
     
-    /* Ensure icon stays on top and text on bottom */
-    div[data-testid="column"] button div[data-testid="stMarkdownContainer"] p {
+    /* Force icons to be on top and centered */
+    div[data-testid="column"] button [data-testid="stMarkdownContainer"] p {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
         margin: 0 !important;
+        white-space: pre-line !important;
+        text-align: center !important;
         line-height: 1.1 !important;
         font-size: 0.9rem !important;
     }
@@ -1101,17 +1103,17 @@ with st.popover("➕"):
     st.markdown("#### Live Dashboard")
     wcol1, wcol2, wcol3 = st.columns(3)
     with wcol1:
-        if st.button("🌦️ Weather", use_container_width=True):
+        if st.button("🌦️\nWeather", use_container_width=True):
             st.session_state.messages.append({"role": "user", "content": "Get live weather updates"})
             st.session_state.ai_processing = True
             st.rerun()
     with wcol2:
-        if st.button("📈 Market", use_container_width=True):
+        if st.button("📈\nMarket", use_container_width=True):
             st.session_state.messages.append({"role": "user", "content": "Check current stock and crypto prices"})
             st.session_state.ai_processing = True
             st.rerun()
     with wcol3:
-        if st.button("📰 Tech", use_container_width=True):
+        if st.button("📰\nTech", use_container_width=True):
             st.session_state.messages.append({"role": "user", "content": "Show top tech news headlines"})
             st.session_state.ai_processing = True
             st.rerun()
