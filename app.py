@@ -991,8 +991,8 @@ for msg in st.session_state.messages:
             seed = random.randint(1, 100000)
             img_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed={seed}&nologo=true&model=flux"
             
-            # Compact display
-            st.image(img_url, caption=f"Generated: {img_prompt}", width=500)
+            # Compact display with responsive width
+            st.image(img_url, caption=f"nick.ai Visual: {img_prompt}", use_container_width=True)
             
             # Action Buttons (Full-Width 50/50 Toolbar)
             col1, col2 = st.columns([1, 1], gap="small")
