@@ -887,11 +887,19 @@ with st.sidebar:
                         st.session_state.messages = []
                     st.rerun()
                     
-    # Load More Button
-    if len(all_chats) > st.session_state.chats_limit:
-        if st.button("🔽 Load More", use_container_width=True):
-            st.session_state.chats_limit += 10
-            st.rerun()
+    # Pagination Controls
+    if len(all_chats) > 10:
+        pcol1, pcol2 = st.columns(2)
+        with pcol1:
+            if len(all_chats) > st.session_state.chats_limit:
+                if st.button("🔽 Load More", use_container_width=True):
+                    st.session_state.chats_limit += 10
+                    st.rerun()
+        with pcol2:
+            if st.session_state.chats_limit > 10:
+                if st.button("🔼 Load Less", use_container_width=True):
+                    st.session_state.chats_limit = 10 # Reset to initial
+                    st.rerun()
 
     # User Profile at the bottom (Interactive)
     st.markdown("---")
