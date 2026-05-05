@@ -1013,7 +1013,8 @@ if st.session_state.get('ai_processing', False):
                         search_query = prompt[:120]
                     
                     with DDGS() as ddgs:
-                        results = list(ddgs.text(search_query, max_results=search_limit))
+                        # Use backend="lite" for better reliability against bot detection
+                        results = list(ddgs.text(search_query, max_results=search_limit, backend="lite", region="wt-wt"))
                     
                     if results:
                         search_context = "### Web Search Results Found:\n\n"
