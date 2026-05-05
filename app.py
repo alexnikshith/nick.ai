@@ -451,18 +451,9 @@ st.markdown("""
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
+        margin-top: 1.5rem;
         margin-bottom: 0.5rem;
         padding-left: 0.5rem;
-    }
-
-    /* Sticky Bottom Profile Anchor */
-    .sidebar-bottom-anchor {
-        position: sticky !important;
-        bottom: -3rem !important; /* Account for Streamlit's internal padding */
-        background-color: #000000 !important;
-        padding: 1rem 0 !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-        z-index: 999 !important;
     }
 
     /* Dashboard Widget Buttons: Perfect Symmetry */
@@ -889,8 +880,9 @@ with st.sidebar:
                         st.session_state.chat_title = "New chat"
                         st.session_state.messages = []
                     st.rerun()
-    # FIXED BOTTOM SECTION
-    st.markdown('<div class="sidebar-bottom-anchor">', unsafe_allow_html=True)
+
+    # User Profile at the bottom (Interactive)
+    st.markdown("---")
     with st.popover(f"👤 {st.session_state.user_display_name}", use_container_width=True):
         st.markdown("### Edit profile")
         
@@ -924,7 +916,6 @@ with st.sidebar:
                 st.session_state.user_username = new_username
                 st.toast("Profile updated!")
                 st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- MAIN CHAT UI ---
 st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
