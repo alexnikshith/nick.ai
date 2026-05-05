@@ -365,6 +365,11 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         color: #E0E0E0 !important;
         transition: all 0.3s ease !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+        text-align: left !important;
     }
     
     div[data-testid="stSidebar"] div.stButton > button:hover {
