@@ -440,51 +440,9 @@ st.markdown("""
     a { color: var(--accent) !important; }
     .stMarkdown strong { color: var(--accent) !important; }
     
-    /* WhatsApp Style: Left-Right Staggered Chat */
-    [data-testid="stChatMessage"] {
-        background-color: transparent !important;
-        padding: 0.5rem 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        display: flex !important;
-    }
-    
-    /* User Message (Right Aligned) */
+    /* User Chat Bubble Border */
     [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
-        flex-direction: row-reverse !important;
-        justify-content: flex-start !important;
-    }
-    
-    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) [data-testid="stChatMessageContent"] {
-        background-color: #1E1E1E !important; /* Dark Obsidian Bubble */
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 1.2rem 1.2rem 0.2rem 1.2rem !important;
-        padding: 0.8rem 1.2rem !important;
-        margin-right: 0.5rem !important;
-        max-width: 80% !important;
-        width: fit-content !important;
-    }
-    
-    /* Assistant Message (Left Aligned) */
-    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
-        flex-direction: row !important;
-        justify-content: flex-start !important;
-    }
-    
-    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) [data-testid="stChatMessageContent"] {
-        background-color: #121212 !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 1.2rem 1.2rem 1.2rem 0.2rem !important;
-        padding: 0.8rem 1.2rem !important;
-        margin-left: 0.5rem !important;
-        max-width: 85% !important;
-        width: fit-content !important;
-    }
-
-    /* Hide Avatars for cleaner look */
-    [data-testid="stChatMessageAvatarUser"], 
-    [data-testid="stChatMessageAvatarAssistant"] {
-        display: none !important;
     }
 /* Recents Header */
     div[data-testid="stSidebar"] h3 {
@@ -496,6 +454,8 @@ st.markdown("""
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
         padding-left: 0.5rem;
+    }
+
     /* Dashboard Widget Buttons */
     div[data-testid="column"] button {
         height: 3.5rem !important;
@@ -508,6 +468,7 @@ st.markdown("""
         font-size: 0.85rem !important;
         width: 100% !important;
     }
+
 
     /* Main Chat Header */
     .chat-header {
