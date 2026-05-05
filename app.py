@@ -1006,43 +1006,18 @@ if st.session_state.get('ai_processing', False):
             "Accuracy is your #1 priority. If you are not 100% sure based ON THE PROVIDED SEARCH RESULTS, say you don't know yet. "
             "Cite sources if you find the answer."
         )
-        api_messages = [{"role": "system", "content": system_instructions}]
+        api_messages = [{
+            "role": "system",
+            "content": (
+                f"You are nick.ai, an extremely smart AI assistant created by Nikshith Gurram. "
+                f"Today's date and time is {current_time}. "
+                "You have built-in real-time web search. Always use it to answer factual, news, or current event questions. "
+                "Give direct, concise answers. For coding questions, provide ONE clean, simple, well-commented solution only. "
+                "Never give multiple versions of code unless asked. Keep responses friendly and professional."
+            )
+        }]
         
-        # 1. Handle Web Search (ALWAYS ENABLED)
-        search_limit = 5
-        with st.status("🌐 nick.ai is researching...", expanded=False) as status:
-            try:
-                # Optimize the search query using Groq
-                query_optimizer_prompt = f"Convert this user request into a concise search query. Include today's date ({current_time.split(',')[1].strip()}) if relevant. Only return the query: \"{prompt}\""
-                opt_res = client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
-                    messages=[{"role": "user", "content": query_optimizer_prompt}]
-                )
-                search_query = opt_res.choices[0].message.content.strip().strip('"')
-                
-                with DDGS() as ddgs:
-                    results = list(ddgs.text(search_query, max_results=search_limit, backend="lite", region="in-en"))
-                
-                if results:
-                    search_context = "### REAL-TIME SEARCH RESULTS (TRUST THESE ONLY):\n\n"
-                    for i, res in enumerate(results, 1):
-                        search_context += f"**[{i}] {res['title']}**\n{res['body']}\nSource: {res['href']}\n\n"
-                    
-                    api_messages.append({
-                        "role": "system", 
-                        "content": f"Use ONLY these results to answer. If the answer isn't here, say it's not available: \n{search_context}"
-                    })
-                    status.update(label=f"✅ Research complete", state="complete", expanded=False)
-                else:
-                    api_messages.append({
-                        "role": "system", 
-                        "content": "CRITICAL: NO SEARCH RESULTS FOUND. DO NOT HALLUCINATE. Tell the user the information is not yet available online."
-                    })
-                    status.update(label="❓ No live data found yet", state="complete", expanded=False)
-            except Exception as e:
-                status.update(label=f"⚠️ Research failed", state="error", expanded=False)
-
-        # 2. Handle File & Image Attachments
+        # 1. Handle File & Image Attachments
         if uploaded_files:
             for file in uploaded_files:
                 try:
@@ -1085,24 +1060,25 @@ if st.session_state.get('ai_processing', False):
         response_placeholder = st.empty()
         full_response = ""
         
-        # Groq-powered Llama 3
-        stream = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=api_messages,
-            stream=True,
-        )
+        # Groq compound-beta: has NATIVE built-in web search
+        with st.status("🌐 nick.ai is searching the web...", expanded=False) as status:
+            response = client.chat.completions.create(
+                model="compound-beta",
+                messages=api_messages,
+            )
+            # Check if web search was used
+            if hasattr(response, 'x_groq') and response.x_groq:
+                status.update(label="✅ Web search complete", state="complete", expanded=False)
+            else:
+                status.update(label="✅ Done", state="complete", expanded=False)
+        
+        full_response = response.choices[0].message.content
+        stream = None  # No streaming for compound-beta
         
         thinking_placeholder.empty()
 
-        for chunk in stream:
-            if chunk.choices[0].delta.content:
-                full_response += chunk.choices[0].delta.content
-                response_placeholder.markdown(f"""
-                    <div class="chat-bubble assistant-bubble">
-                        <div class="bubble-role">nick.ai</div>
-                        <div class="bubble-content">{full_response}▌</div>
-                    </div>
-                """, unsafe_allow_html=True)
+        # compound-beta returns complete response (no streaming)
+        # full_response is already set above
         
         # Final render and save
         response_placeholder.markdown(f"""
