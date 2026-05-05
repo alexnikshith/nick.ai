@@ -944,6 +944,11 @@ if not st.session_state.messages:
     st.markdown('<div style="height: 15vh;"></div>', unsafe_allow_html=True)
     st.markdown(f'<div style="display: flex; justify-content: center; width: 100%;"><h1 style="text-align: center; color: #FFFFFF; font-family: \'Outfit\', sans-serif; font-weight: 500; font-size: 2.2rem; opacity: 0.9; width: 100%; margin: 0 auto;">{quote}</h1></div>', unsafe_allow_html=True)
 
+# Display messages from session state
+if st.session_state.messages:
+    # This pushes the conversation to the bottom of the screen
+    st.markdown('<div style="flex-grow: 1; height: 10vh;"></div>', unsafe_allow_html=True)
+
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         content = msg["content"]
