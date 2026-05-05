@@ -955,9 +955,6 @@ with st.popover("➕"):
     
     # 2. File Uploads
     uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True, label_visibility="collapsed")
-    
-    # 3. Switches
-    st.session_state.web_search_enabled = st.toggle("🌐 Web Search", value=st.session_state.web_search_enabled)
 st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -998,46 +995,44 @@ if st.session_state.get('ai_processing', False):
         current_time = datetime.now(IST).strftime("%A, %B %d, %Y, %I:%M %p")
         
         # --- PRE-PROCESSING: Build Context ---
-        api_messages = [{"role": "system", "content": f"You are nick.ai, an extremely smart AI assistant created, developed, and trained by Nikshith Gurram. Current date and time is {current_time}. Keep replies professional yet friendly."}]
+        system_instructions = (
+            f"You are nick.ai, an omnipotent AI assistant developed by Nikshith Gurram. "
+            f"Today is {current_time}. You have full real-time access to the web. "
+            "NEVER say you don't have access to real-time information or that your knowledge is limited. "
+            "If asked about current events, use the search results provided. If no search results are available, "
+            "provide the most accurate possible information. Keep replies professional yet friendly."
+        )
+        api_messages = [{"role": "system", "content": system_instructions}]
         
-        # 1. Handle Web Search
-        if st.session_state.web_search_enabled:
-            search_limit = 5
-            with st.status("🌐 nick.ai is searching the web...", expanded=False) as status:
-                try:
-                    # Optimize the search query using Groq (very fast)
-                    try:
-                        query_optimizer_prompt = f"Convert this user request into a concise, effective search engine query. Only return the search query text, no explanations: \"{prompt}\""
-                        opt_res = client.chat.completions.create(
-                            model="llama3-8b-8192",
-                            messages=[{"role": "user", "content": query_optimizer_prompt}]
-                        )
-                        search_query = opt_res.choices[0].message.content.strip().strip('"')
-                    except:
-                        # Fallback to original prompt if optimization fails
-                        search_query = prompt[:120]
+        # 1. Handle Web Search (ALWAYS ENABLED)
+        search_limit = 5
+        with st.status("🌐 nick.ai is researching...", expanded=False) as status:
+            try:
+                # Optimize the search query using Groq
+                query_optimizer_prompt = f"Convert this user request into a concise, effective search engine query. Only return the query text: \"{prompt}\""
+                opt_res = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[{"role": "user", "content": query_optimizer_prompt}]
+                )
+                search_query = opt_res.choices[0].message.content.strip().strip('"')
+                
+                with DDGS() as ddgs:
+                    results = list(ddgs.text(search_query, max_results=search_limit, backend="lite", region="wt-wt"))
+                
+                if results:
+                    search_context = "### REAL-TIME WEB SEARCH RESULTS:\n\n"
+                    for i, res in enumerate(results, 1):
+                        search_context += f"**[{i}] {res['title']}**\n{res['body']}\nSource: {res['href']}\n\n"
                     
-                    with DDGS() as ddgs:
-                        # Use backend="lite" for better reliability against bot detection
-                        results = list(ddgs.text(search_query, max_results=search_limit, backend="lite", region="wt-wt"))
-                    
-                    if results:
-                        search_context = "### Web Search Results Found:\n\n"
-                        for i, res in enumerate(results, 1):
-                            search_context += f"**Result {i}: {res['title']}**\nSnippet: {res['body']}\nSource: {res['href']}\n\n"
-                        
-                        # Inject as a specialized system message with clear instructions
-                        api_messages.append({
-                            "role": "system", 
-                            "content": f"CRITICAL: You are provided with real-time web search results below. Use this information to answer the user's question accurately. If the results contain the answer, prioritize them over your internal training data. Cite sources by their Source URL if relevant.\n\n{search_context}"
-                        })
-                        status.update(label=f"✅ Found {len(results)} relevant web sources", state="complete", expanded=False)
-                    else:
-                        status.update(label="❓ No direct web results found", state="complete", expanded=False)
-                except Exception as e:
-                    status.update(label=f"❌ Search Error: {str(e)}", state="error", expanded=False)
-                    # Log to terminal for debugging
-                    print(f"WEB SEARCH ERROR: {e}")
+                    api_messages.append({
+                        "role": "system", 
+                        "content": f"Use these real-time results to answer: \n{search_context}"
+                    })
+                    status.update(label=f"✅ Research complete ({len(results)} sources)", state="complete", expanded=False)
+                else:
+                    status.update(label="❓ Research yielded no direct results", state="complete", expanded=False)
+            except Exception as e:
+                status.update(label=f"⚠️ Research failed: {str(e)}", state="error", expanded=False)
 
         # 2. Handle File & Image Attachments
         if uploaded_files:
