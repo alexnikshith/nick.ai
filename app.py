@@ -13,6 +13,7 @@ from pydub import AudioSegment
 import io
 import os
 from groq import Groq
+import pytz
 
 # BULLETPROOF FIX for FFmpeg (WinError 2)
 # Manually inject the FFmpeg path into the system environment for this session
@@ -992,8 +993,9 @@ if st.session_state.get('ai_processing', False):
             
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
         
-        # 0. Get Current Time
-        current_time = datetime.now().strftime("%A, %B %d, %Y, %I:%M %p")
+        # 0. Get Current Time (Fixed for IST)
+        IST = pytz.timezone('Asia/Kolkata')
+        current_time = datetime.now(IST).strftime("%A, %B %d, %Y, %I:%M %p")
         
         # --- PRE-PROCESSING: Build Context ---
         api_messages = [{"role": "system", "content": f"You are nick.ai, an extremely smart AI assistant created, developed, and trained by Nikshith Gurram. Current date and time is {current_time}. Keep replies professional yet friendly."}]
