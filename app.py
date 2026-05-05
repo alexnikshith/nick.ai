@@ -584,70 +584,50 @@ st.markdown("""
     }
 
     
-    /* Chat Bubble Styling */
+    /* --- WHATSAPP STYLE CHAT ALIGNMENT --- */
+    
+    /* Hide all avatars */
+    [data-testid="stChatMessageAvatarUser"], 
+    [data-testid="stChatMessageAvatarAssistant"] {
+        display: none !important;
+    }
+
+    /* General message container spacing */
     [data-testid="stChatMessage"] {
         padding: 0.8rem 1rem !important;
+        margin-bottom: 1rem !important;
+        max-width: 80% !important;
         border-radius: 1.2rem !important;
-        margin-bottom: 0.8rem !important;
-        max-width: 85% !important;
+        background-color: transparent !important; /* Resetting native background */
     }
-    
-    /* Assistant Bubble (Left) */
-    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]),
-    [data-testid="stChatMessage"][data-testid="assistant"] {
-        background-color: #1A1A1A !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-top-left-radius: 0.2rem !important;
-    }
-    
-    /* User Bubble (Right) */
-    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]),
-    [data-testid="stChatMessage"][data-testid="user"] {
+
+    /* User Message (Right Aligned) */
+    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+        margin-left: auto !important;
+        margin-right: 0 !important;
         background-color: #2D2D2D !important;
         border: 1px solid rgba(187, 134, 252, 0.2) !important;
-        border-top-right-radius: 0.2rem !important;
+        border-bottom-right-radius: 0.2rem !important; /* WhatsApp sharp corner */
     }
 
-
-    /* CUSTOM CHAT BUBBLES - REFINED & COMPACT */
-    .chat-bubble {
-        padding: 0.8rem 1.2rem;
-        border-radius: 14px;
-        margin-bottom: 0.8rem;
-        max-width: 75%;
-        line-height: 1.4;
-        font-size: 0.95rem;
-        color: #FFFFFF;
-        font-family: 'Inter', sans-serif;
-    }
-    
-    .user-bubble {
-        background-color: #262626;
-        margin-left: auto;
-        border-bottom-right-radius: 2px;
-        border: 1px solid rgba(187, 134, 252, 0.1);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-    
-    .assistant-bubble {
-        background-color: #1A1A1A;
-        margin-right: auto;
-        border-bottom-left-radius: 2px;
-        border: 1px solid rgba(0, 242, 255, 0.05);
+    /* Assistant Message (Left Aligned) */
+    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
+        margin-right: auto !important;
+        margin-left: 0 !important;
+        background-color: #1A1A1A !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-bottom-left-radius: 0.2rem !important; /* WhatsApp sharp corner */
     }
 
-    .bubble-role {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        margin-bottom: 0.4rem;
-        opacity: 0.35;
-        font-weight: 700;
-        color: #00F2FF;
+    /* Remove the default Streamlit message padding and flex gaps since avatars are gone */
+    [data-testid="stChatMessage"] > div:first-child {
+        display: none !important; /* Hides the avatar container entirely */
     }
     
-    .user-bubble .bubble-role {
-        color: #BB86FC;
+    [data-testid="stChatMessageContent"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
         text-align: right;
     }
 </style>
