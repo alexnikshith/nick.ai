@@ -47,6 +47,16 @@ CHATS_DIR = "chats"
 if not os.path.exists(CHATS_DIR):
     os.makedirs(CHATS_DIR)
 
+@st.cache_data(show_spinner=False)
+def get_image_base64(url):
+    try:
+        res = requests.get(url, timeout=10)
+        if res.status_code == 200:
+            return base64.b64encode(res.content).decode()
+    except:
+        pass
+    return None
+
 # --- HELPER FUNCTIONS FOR CHAT HISTORY ---
 def save_chat(chat_id, title, messages, project="General", pinned=False, updated_at=None):
     file_path = os.path.join(CHATS_DIR, f"{chat_id}.json")
@@ -958,12 +968,8 @@ for msg in st.session_state.messages:
             col1, col2 = st.columns([1, 1], gap="small")
             
             # Prepare Base64 for real system download
-            try:
-                img_data = requests.get(img_url).content
-                b64_img = base64.b64encode(img_data).decode()
-                dl_link = f"data:image/png;base64,{b64_img}"
-            except:
-                dl_link = img_url
+            b64_img = get_image_base64(img_url)
+            dl_link = f"data:image/png;base64,{b64_img}" if b64_img else img_url
                 
             with col1:
                 st.markdown(f'<a href="{img_url}" target="_blank" style="text-decoration:none;"><button style="width:100%; padding:6px; font-size:0.8rem; border-radius:6px; border:1px solid #FFFFFF; background:transparent; color:#FFFFFF; cursor:pointer;">🔗 Link</button></a>', unsafe_allow_html=True)
