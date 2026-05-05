@@ -363,12 +363,15 @@ st.markdown("""
     div[data-testid="stSidebar"] div.stButton > button,
     div[data-testid="stSidebar"] div.stButton > button div,
     div[data-testid="stSidebar"] div.stButton > button p,
-    div[data-testid="stSidebar"] div.stButton > button span {
+    div[data-testid="stSidebar"] div.stButton > button span,
+    div[data-testid="stSidebar"] div.stButton > button [data-testid="stMarkdownContainer"] {
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         display: block !important;
         text-align: left !important;
+        min-width: 0 !important;
+        width: 100% !important;
     }
     
     div[data-testid="stSidebar"] div.stButton > button:hover {
