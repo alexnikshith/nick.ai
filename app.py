@@ -996,11 +996,15 @@ if st.session_state.get('ai_processing', False):
         
         # --- PRE-PROCESSING: Build Context ---
         system_instructions = (
-            f"You are nick.ai, an omnipotent AI assistant developed by Nikshith Gurram. "
-            f"Today is {current_time}. You have full real-time access to the web. "
-            "NEVER say you don't have access to real-time information or that your knowledge is limited. "
-            "If asked about current events, use the search results provided. If no search results are available, "
-            "provide the most accurate possible information. Keep replies professional yet friendly."
+            "CRITICAL: You are nick.ai, an extremely reliable and factual AI assistant. "
+            f"Today's EXACT date and time is {current_time}. "
+            "You have PERMANENT real-time access to the web. "
+            "You MUST use the provided search results to answer questions about current events. "
+            "IF THE SEARCH RESULTS DO NOT CONTAIN THE ANSWER (e.g., if a match hasn't started or a toss hasn't happened), "
+            "YOU MUST SAY: 'The information is not yet available as the event hasn't occurred.' "
+            "NEVER GUESS. NEVER HALLUCINATE. NEVER PROVIDE FICTIONAL MATCH RESULTS. "
+            "Accuracy is your #1 priority. If you are not 100% sure based ON THE PROVIDED SEARCH RESULTS, say you don't know yet. "
+            "Cite sources if you find the answer."
         )
         api_messages = [{"role": "system", "content": system_instructions}]
         
@@ -1009,7 +1013,7 @@ if st.session_state.get('ai_processing', False):
         with st.status("🌐 nick.ai is researching...", expanded=False) as status:
             try:
                 # Optimize the search query using Groq
-                query_optimizer_prompt = f"Convert this user request into a concise, effective search engine query. Only return the query text: \"{prompt}\""
+                query_optimizer_prompt = f"Convert this user request into a concise search query. Include today's date ({current_time.split(',')[1].strip()}) if relevant. Only return the query: \"{prompt}\""
                 opt_res = client.chat.completions.create(
                     model="llama-3.1-8b-instant",
                     messages=[{"role": "user", "content": query_optimizer_prompt}]
@@ -1017,22 +1021,26 @@ if st.session_state.get('ai_processing', False):
                 search_query = opt_res.choices[0].message.content.strip().strip('"')
                 
                 with DDGS() as ddgs:
-                    results = list(ddgs.text(search_query, max_results=search_limit, backend="lite", region="wt-wt"))
+                    results = list(ddgs.text(search_query, max_results=search_limit, backend="lite", region="in-en"))
                 
                 if results:
-                    search_context = "### REAL-TIME WEB SEARCH RESULTS:\n\n"
+                    search_context = "### REAL-TIME SEARCH RESULTS (TRUST THESE ONLY):\n\n"
                     for i, res in enumerate(results, 1):
                         search_context += f"**[{i}] {res['title']}**\n{res['body']}\nSource: {res['href']}\n\n"
                     
                     api_messages.append({
                         "role": "system", 
-                        "content": f"Use these real-time results to answer: \n{search_context}"
+                        "content": f"Use ONLY these results to answer. If the answer isn't here, say it's not available: \n{search_context}"
                     })
-                    status.update(label=f"✅ Research complete ({len(results)} sources)", state="complete", expanded=False)
+                    status.update(label=f"✅ Research complete", state="complete", expanded=False)
                 else:
-                    status.update(label="❓ Research yielded no direct results", state="complete", expanded=False)
+                    api_messages.append({
+                        "role": "system", 
+                        "content": "CRITICAL: NO SEARCH RESULTS FOUND. DO NOT HALLUCINATE. Tell the user the information is not yet available online."
+                    })
+                    status.update(label="❓ No live data found yet", state="complete", expanded=False)
             except Exception as e:
-                status.update(label=f"⚠️ Research failed: {str(e)}", state="error", expanded=False)
+                status.update(label=f"⚠️ Research failed", state="error", expanded=False)
 
         # 2. Handle File & Image Attachments
         if uploaded_files:
