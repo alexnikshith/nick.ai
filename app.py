@@ -454,8 +454,19 @@ st.markdown("""
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
         padding-left: 0.5rem;
+    /* Dashboard Widget Buttons */
+    div[data-testid="column"] button {
+        height: 3.5rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 2px !important;
+        line-height: 1.2 !important;
+        font-size: 0.85rem !important;
+        width: 100% !important;
     }
-    
+
     /* Main Chat Header */
     .chat-header {
         color: #FFFFFF;
@@ -1174,7 +1185,7 @@ if st.session_state.get('ai_processing', False):
         for m in recent:
             content = m["content"]
             if isinstance(content, str):
-                content = content[:800] # Increased context window
+                content = content[:400] # Aggressive trim to avoid 413 errors
             api_messages.append({"role": m["role"], "content": content})
         api_messages.append({"role": "user", "content": prompt})
 
