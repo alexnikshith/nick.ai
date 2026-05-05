@@ -279,6 +279,21 @@ st.markdown("""
         display: none !important;
     }
     
+    /* Main Share Menu - Fixed Top Right */
+    #main-share-menu {
+        position: fixed !important;
+        top: 15px !important;
+        right: 25px !important;
+        z-index: 99999 !important;
+    }
+    #main-share-menu button {
+        background-color: #1A1A1A !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #FFFFFF !important;
+        font-size: 0.8rem !important;
+        border-radius: 8px !important;
+    }
+    
     /* Keep bottom area black */
     [data-testid="stBottomBlockContainer"], 
     [data-testid="stBottom"],
@@ -834,9 +849,9 @@ with st.sidebar:
 # --- MAIN CHAT UI ---
 st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
-# Share Popover (Floating in corner)
-st.sidebar.markdown("---")
-with st.sidebar.popover("📤 Share / Options", use_container_width=True):
+# Share Popover (Floating Top-Right)
+st.markdown('<div id="main-share-menu">', unsafe_allow_html=True)
+with st.popover("📤 Share / Options"):
     st.subheader("Options")
         
     # 1. RENAME
@@ -856,6 +871,7 @@ with st.sidebar.popover("📤 Share / Options", use_container_width=True):
     # 3. DELETE
     if st.button("🗑️ Delete Chat", use_container_width=True, type="secondary"):
         st.session_state["pending_delete"] = True
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Process deferred actions OUTSIDE the popover
 if st.session_state.get("pending_rename"):
