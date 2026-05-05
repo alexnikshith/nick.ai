@@ -1007,7 +1007,8 @@ for msg in st.session_state.messages:
 if not st.session_state.messages:
     st.markdown('<div style="height: 29vh;"></div>', unsafe_allow_html=True)
 else:
-    st.markdown('<div style="height: 2vh;"></div>', unsafe_allow_html=True)
+    # Aggressively tight spacer for active conversations to prevent voids
+    st.markdown('<div style="height: 1vh;"></div>', unsafe_allow_html=True)
 st.markdown('<div id="plus-button-container">', unsafe_allow_html=True)
 with st.popover("➕"):
     st.markdown("#### Tools & Voice")
