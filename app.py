@@ -1000,19 +1000,13 @@ if st.session_state.get('ai_processing', False):
         
         # --- PRE-PROCESSING: Build Context ---
         system_instructions = (
-            "You are nick.ai, a professional, high-performance AI coding assistant. "
+            "You are nick.ai, a professional, high-performance AI assistant. "
             f"Today's date is {current_time}. "
-            "Your objective is to provide ONE perfect, clean, and simple solution. "
-            "\n\nCODING PROTOCOL (Follow strictly):"
-            "\n1. USE NEAT FORMATTING: Use clear indentation and logical spacing."
-            "\n2. BEGINNER FRIENDLY: Use simple variable names and clear logic."
-            "\n3. MANDATORY COMMENTS: Add inline comments (#) to explain every major step."
-            "\n4. COMPLETE CODE: Always provide a full, runnable example with test data."
-            "\n5. NO REPETITION: Do not give 2-3 versions. Give the BEST one only."
-            "\n\nRESEARCH RULES:"
-            "\n- Use the provided search results to give genuine, factual answers."
-            "\n- If data is missing (like a live score for a match that hasn't started), say it explicitly."
-            "\n- Never guess or hallucinate."
+            "\n\nCORE RULES:"
+            "\n1. CONTEXT FIRST: Always read the chat history. If the user asks 'is this correct?' or 'fix it', refer to the previous code/answer. Do NOT generate a random new example."
+            "\n2. CODING: Provide ONE clean, simple, and neat solution ONLY when asked. Use simple variable names and inline comments (#)."
+            "\n3. NO GUESSING: Use search results for facts. If information is missing, be honest. No hallucinations."
+            "\n4. BE CONVERSATIONAL: If the user is just chatting or giving feedback, respond naturally. Do not give code unless it is relevant."
         )
         api_messages = [{
             "role": "system",
@@ -1038,12 +1032,12 @@ if st.session_state.get('ai_processing', False):
                         api_messages.append({"role": "system", "content": f"PDF '{file.name}':\n{text[:2000]}"})
                 except: pass
 
-        # 2. Add recent history (last 2 turns only)
-        recent = [m for m in st.session_state.messages[-4:-1] if m["role"] in ("user", "assistant")]
+        # 2. Add recent history (last 4 turns for better context)
+        recent = [m for m in st.session_state.messages[-8:-1] if m["role"] in ("user", "assistant")]
         for m in recent:
             content = m["content"]
             if isinstance(content, str):
-                content = content[:400]
+                content = content[:800] # Increased context window
             api_messages.append({"role": m["role"], "content": content})
         api_messages.append({"role": "user", "content": prompt})
 
