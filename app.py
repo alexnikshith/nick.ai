@@ -917,7 +917,7 @@ if not st.session_state.messages:
     import random
     quote = random.choice(welcoming_quotes)
     
-    st.markdown('<div style="height: 30vh;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 15vh;"></div>', unsafe_allow_html=True)
     st.markdown(f'<h1 style="text-align: center; color: #FFFFFF; font-family: \'Outfit\', sans-serif; font-weight: 500; font-size: 2.2rem; opacity: 0.9;">{quote}</h1>', unsafe_allow_html=True)
 
 for msg in st.session_state.messages:
