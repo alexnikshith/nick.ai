@@ -602,15 +602,6 @@ st.markdown("""
         background-color: transparent !important; /* Resetting native background */
     }
 
-    /* User Message (Right Aligned) */
-    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
-        margin-left: auto !important;
-        margin-right: 0 !important;
-        background-color: #2D2D2D !important;
-        border: 1px solid rgba(187, 134, 252, 0.2) !important;
-        border-bottom-right-radius: 0.2rem !important; /* WhatsApp sharp corner */
-    }
-
     /* Assistant Message (Left Aligned) */
     [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
         margin-right: auto !important;
@@ -618,6 +609,19 @@ st.markdown("""
         background-color: #1A1A1A !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         border-bottom-left-radius: 0.2rem !important; /* WhatsApp sharp corner */
+        width: fit-content !important; /* SHRINK TO IMAGE SIZE */
+        min-width: 100px !important;
+    }
+    
+    /* User Message (Right Aligned) */
+    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+        margin-left: auto !important;
+        margin-right: 0 !important;
+        background-color: #2D2D2D !important;
+        border: 1px solid rgba(187, 134, 252, 0.2) !important;
+        border-bottom-right-radius: 0.2rem !important;
+        width: fit-content !important; /* SHRINK TO TEXT SIZE */
+        min-width: 100px !important;
     }
 
     /* Remove the default Streamlit message padding and flex gaps since avatars are gone */
