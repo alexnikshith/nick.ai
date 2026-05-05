@@ -904,8 +904,21 @@ if st.session_state.get("pending_delete"):
 
 # Display chat messages
 if not st.session_state.messages:
-    # Empty space for original design
+    # 1. Randomized Welcoming Quotes
+    welcoming_quotes = [
+        "How can I help?",
+        "What's on your mind?",
+        "Ready for a new task?",
+        "Let's build something great.",
+        "Hello, Nikshith. What's next?",
+        "I'm listening...",
+        "Tell me anything."
+    ]
+    import random
+    quote = random.choice(welcoming_quotes)
+    
     st.markdown('<div style="height: 30vh;"></div>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="text-align: center; color: #FFFFFF; font-family: \'Outfit\', sans-serif; font-weight: 500; font-size: 2.2rem; opacity: 0.9;">{quote}</h1>', unsafe_allow_html=True)
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
