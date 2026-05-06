@@ -1217,8 +1217,9 @@ if st.session_state.get('ai_processing', False):
         has_image = False
         
         # 1. File & Image Attachments
-        if uploaded_files:
-            for file in uploaded_files:
+        current_file_key = f"file_input_{st.session_state.uploader_id}"
+        if current_file_key in st.session_state and st.session_state[current_file_key]:
+            for file in st.session_state[current_file_key]:
                 try:
                     if file.type.startswith('image/') or file.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
                         has_image = True
