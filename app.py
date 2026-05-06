@@ -1450,15 +1450,19 @@ if st.session_state.get('ai_processing', False):
         st.error(f"Error: {str(e)}")
         st.session_state.ai_processing = False
 
-# --- FINAL NEAT LAYOUT FIX (Ensures movement on Cloud) ---
+# --- GLOBAL LAYOUT OVERDRIVE (Final Cloud Fix) ---
 st.markdown("""
 <style>
-    /* Force the tool button to the bottom left */
-    div[data-testid="stMainBlockContainer"] div[data-testid="stPopover"]:nth-of-type(2) {
+    /* Force the tool button to sit perfectly neat at the bottom left */
+    [data-testid="stPopover"] {
         position: fixed !important;
-        bottom: 15px !important;
+        bottom: 30px !important; 
         left: 340px !important;
-        z-index: 9999999 !important;
+        z-index: 1000000 !important;
+    }
+    /* Specifically hide the duplication if it happens */
+    div[data-testid="stMainBlockContainer"] .stPopover {
+         visibility: visible !important;
     }
 </style>
 """, unsafe_allow_html=True)
