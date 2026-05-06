@@ -663,21 +663,7 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* Premium Composer Tools - Positional Targeting for Cloud Stability */
-    /* This targets the 2nd popover in the main area (The + button) */
-    div[data-testid="stMainBlockContainer"] div[data-testid="stPopover"]:nth-of-type(2) {
-        position: fixed !important;
-        bottom: 10px !important; /* Brought down by 2.5cm total */
-        left: 340px !important;
-        z-index: 1000000 !important;
-    }
-    
-    @media (max-width: 768px) {
-        div[data-testid="stMainBlockContainer"] div[data-testid="stPopover"]:nth-of-type(2) {
-            left: 20px !important;
-            bottom: 80px !important;
-        }
-    }
+
     
     /* Style the Popover Button to match the image */
     .input-tools div[data-testid="stPopover"] > button {
@@ -1463,3 +1449,16 @@ if st.session_state.get('ai_processing', False):
     except Exception as e:
         st.error(f"Error: {str(e)}")
         st.session_state.ai_processing = False
+
+# --- FINAL NEAT LAYOUT FIX (Ensures movement on Cloud) ---
+st.markdown("""
+<style>
+    /* Force the tool button to the bottom left */
+    div[data-testid="stMainBlockContainer"] div[data-testid="stPopover"]:nth-of-type(2) {
+        position: fixed !important;
+        bottom: 15px !important;
+        left: 340px !important;
+        z-index: 9999999 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
