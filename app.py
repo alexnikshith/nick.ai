@@ -769,44 +769,8 @@ with st.sidebar:
         st.session_state.messages = []
         st.query_params.clear() # Clear any active shared link
         st.rerun()
-        
-    # Search chats functionality
-    with st.popover("Search chats", use_container_width=True):
-        st.session_state.search_query = st.text_input("Filter chats by title...", value=st.session_state.search_query)
-        
-    # Projects functionality
-    with st.popover("Projects", use_container_width=True):
-        st.markdown("### 📂 Filter by Project")
-        all_chats_raw = get_all_chats()
-        projects = sorted(list(set([c.get('project', 'General') for c in all_chats_raw])))
-        projects = ["All"] + projects
-        st.session_state.current_project = st.selectbox("Select Project", options=projects, index=projects.index(st.session_state.current_project))
-        
-        st.markdown("---")
-        st.session_state.chat_project = st.text_input("Assign Current Chat to Project:", value=st.session_state.chat_project)
-        if st.button("Update Project Tag"):
-            save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, project=st.session_state.chat_project)
-            st.toast(f"Moved to {st.session_state.chat_project}")
-            st.rerun()
-    
-    with st.expander("More Settings", expanded=False):
-        st.markdown("### 🧠 Knowledge Base")
-        st.session_state.kb_path = st.text_input("Local Folder Path", value=st.session_state.kb_path, placeholder="C:/Users/Documents/Notes")
-        
-        st.markdown("### 🎙️ Interaction")
-        st.session_state.voice_enabled = st.toggle("Voice Feedback (TTS)", value=st.session_state.voice_enabled)
-        
-        st.markdown("---")
-        if st.button("Clear App Cache"):
-            st.cache_data.clear()
-            st.toast("Cache cleared!")
-    
-    # Turbo Mode Toggle
-    st.session_state.codex_mode = st.toggle("🚀 Turbo Mode (70B)", value=st.session_state.codex_mode)
-    
-    st.markdown("---")
-    
-    # --- AI TOOLS SECTION ---
+
+    # --- AI TOOLS & VOICE (Top Position for Downward Dropdown) ---
     with st.popover("➕ AI Tools & Voice", use_container_width=True):
         st.markdown("#### Tools & Voice")
         
@@ -873,6 +837,29 @@ with st.sidebar:
             st.session_state.uploader_id = 0
         file_key = f"file_input_{st.session_state.uploader_id}"
         st.file_uploader("Upload Images/PDF/TXT", accept_multiple_files=True, key=file_key)
+
+    # Search chats functionality (Restored)
+    with st.popover("Search chats", use_container_width=True):
+        st.session_state.search_query = st.text_input("Filter chats by title...", value=st.session_state.search_query)
+    
+    with st.expander("More Settings", expanded=False):
+        st.markdown("### 🧠 Knowledge Base")
+        st.session_state.kb_path = st.text_input("Local Folder Path", value=st.session_state.kb_path, placeholder="C:/Users/Documents/Notes")
+        
+        st.markdown("### 🎙️ Interaction")
+        st.session_state.voice_enabled = st.toggle("Voice Feedback (TTS)", value=st.session_state.voice_enabled)
+        
+        st.markdown("---")
+        if st.button("Clear App Cache"):
+            st.cache_data.clear()
+            st.toast("Cache cleared!")
+    
+    # Turbo Mode Toggle
+    st.session_state.codex_mode = st.toggle("🚀 Turbo Mode (70B)", value=st.session_state.codex_mode)
+    
+    st.markdown("---")
+    
+
     
     # 2. RECENTS (Chat History)
     st.markdown("### Recents")
