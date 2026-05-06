@@ -663,12 +663,12 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* Premium Composer Tools - Safe Fixed Positioning (Cloud Hardened) */
-    body #plus-button-container {
+    /* Premium Composer Tools - Ultra-Hardened Fixed Positioning */
+    .main #plus-button-container {
         position: fixed !important;
-        bottom: 20px !important;
+        bottom: 15px !important; /* Lowers it even further */
         left: 340px !important;
-        z-index: 999999 !important;
+        z-index: 1000000 !important;
         display: block !important;
     }
     
