@@ -804,6 +804,76 @@ with st.sidebar:
     # Turbo Mode Toggle
     st.session_state.codex_mode = st.toggle("🚀 Turbo Mode (70B)", value=st.session_state.codex_mode)
     
+    st.markdown("---")
+    
+    # --- AI TOOLS SECTION ---
+    with st.popover("➕ AI Tools & Voice", use_container_width=True):
+        st.markdown("#### Tools & Voice")
+        
+        # 1. Voice Input
+        if "audio_counter" not in st.session_state:
+            st.session_state.audio_counter = 0
+        audio_key = f"voice_input_{st.session_state.audio_counter}"
+        audio_file = st.audio_input("Speak to nick.ai", key=audio_key, label_visibility="collapsed")
+        if audio_file:
+            audio_bytes = audio_file.getvalue()
+            current_audio_id = hashlib.sha256(audio_bytes).hexdigest()
+            if "last_audio_id" not in st.session_state or st.session_state.last_audio_id != current_audio_id:
+                st.session_state.last_audio_id = current_audio_id
+                with st.spinner("🎙️ nick.ai is listening..."):
+                    voice_text = transcribe_audio(audio_file)
+                if "Error" not in voice_text:
+                    st.session_state.ai_processing = True
+                    st.session_state.audio_counter += 1
+                    user_msg = {"role": "user", "content": voice_text}
+                    
+                    # Capture images from uploader
+                    current_file_key = f"file_input_{st.session_state.uploader_id}"
+                    if current_file_key in st.session_state and st.session_state[current_file_key]:
+                        captured_images = []
+                        for f in st.session_state[current_file_key]:
+                            if f.type.startswith('image/') or f.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                                import base64
+                                img_b64 = base64.b64encode(f.getvalue()).decode()
+                                captured_images.append(f"data:{f.type if f.type else 'image/jpeg'};base64,{img_b64}")
+                        if captured_images:
+                            user_msg["images"] = captured_images
+                            st.session_state.uploader_id += 1
+                    
+                    st.session_state.messages.append(user_msg)
+                    if len(st.session_state.messages) <= 2:
+                        st.session_state.chat_title = generate_title(voice_text)
+                    save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, 
+                              project=st.session_state.chat_project, pinned=st.session_state.chat_pinned)
+                    st.rerun()
+
+        st.markdown("---")
+        
+        # 2. Quick Actions
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button("🌦️", help="Weather", use_container_width=True):
+                st.session_state.messages.append({"role": "user", "content": "Get live weather updates"})
+                st.session_state.ai_processing = True
+                st.rerun()
+        with col2:
+            if st.button("💹", help="Stocks", use_container_width=True):
+                st.session_state.messages.append({"role": "user", "content": "Check current stock and crypto prices"})
+                st.session_state.ai_processing = True
+                st.rerun()
+        with col3:
+            if st.button("📰", help="News", use_container_width=True):
+                st.session_state.messages.append({"role": "user", "content": "Show top tech news headlines"})
+                st.session_state.ai_processing = True
+                st.rerun()
+                
+        st.markdown("---")
+        # 3. File Uploads
+        if "uploader_id" not in st.session_state:
+            st.session_state.uploader_id = 0
+        file_key = f"file_input_{st.session_state.uploader_id}"
+        st.file_uploader("Upload Images/PDF/TXT", accept_multiple_files=True, key=file_key)
+    
     # 2. RECENTS (Chat History)
     st.markdown("### Recents")
     all_chats = get_all_chats()
@@ -1087,97 +1157,7 @@ for msg in st.session_state.messages:
         else:
             st.markdown(content)
 
-# Tools Menu (Add Photos, Web Search, Voice, etc)
-if not st.session_state.messages:
-    st.markdown('<div style="height: 29vh;"></div>', unsafe_allow_html=True)
 
-st.markdown('<div class="integrated-tools">', unsafe_allow_html=True)
-with st.popover("➕", key="composer_tools_popover"):
-    st.markdown("#### Tools & Voice")
-    
-    # 1. Voice Input (Integrated & Auto-Trigger!)
-    if "audio_counter" not in st.session_state:
-        st.session_state.audio_counter = 0
-    
-    audio_key = f"voice_input_{st.session_state.audio_counter}"
-    audio_file = st.audio_input("Speak to nick.ai", key=audio_key, label_visibility="collapsed")
-    if audio_file:
-        # Prevent double-processing
-        audio_bytes = audio_file.getvalue()
-        current_audio_id = hashlib.sha256(audio_bytes).hexdigest()
-        
-        if "last_audio_id" not in st.session_state:
-            st.session_state.last_audio_id = None
-            
-        if st.session_state.last_audio_id != current_audio_id:
-            st.session_state.last_audio_id = current_audio_id
-            
-            with st.spinner("🎙️ nick.ai is listening..."):
-                voice_text = transcribe_audio(audio_file)
-                
-            if "Error" not in voice_text:
-                st.session_state.ai_processing = True
-                st.session_state.audio_counter += 1 # Reset the component for next time
-                
-                # Create message and attach images from file_input if any
-                user_msg = {"role": "user", "content": voice_text}
-                current_file_key = f"file_input_{st.session_state.uploader_id}"
-                if current_file_key in st.session_state and st.session_state[current_file_key]:
-                    captured_images = []
-                    for f in st.session_state[current_file_key]:
-                        if f.type.startswith('image/') or f.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                            import base64
-                            img_b64 = base64.b64encode(f.getvalue()).decode()
-                            captured_images.append(f"data:{f.type if f.type else 'image/jpeg'};base64,{img_b64}")
-                    if captured_images:
-                        user_msg["images"] = captured_images
-                        # Clear uploader for next turn
-                        st.session_state.uploader_id += 1
-                
-                st.session_state.messages.append(user_msg)
-                
-                # Generate title for new chats
-                if len(st.session_state.messages) <= 2:
-                    st.session_state.chat_title = generate_title(voice_text)
-                
-                # Save immediately to update timestamp and ensure it shows in sidebar
-                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages, 
-                          project=st.session_state.chat_project, pinned=st.session_state.chat_pinned)
-                    
-                st.rerun()
-            else:
-                # Add error to messages ONLY if it's not a repeat
-                st.session_state.messages.append({"role": "assistant", "content": voice_text})
-                st.rerun()
-    
-    st.markdown("---")
-    
-    # 2. File Uploads
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("🌦️ Weather", use_container_width=True):
-            st.session_state.messages.append({"role": "user", "content": "Get live weather updates"})
-            st.session_state.ai_processing = True
-            st.rerun()
-    with col2:
-        if st.button("💹 Stocks", use_container_width=True):
-            st.session_state.messages.append({"role": "user", "content": "Check current stock and crypto prices"})
-            st.session_state.ai_processing = True
-            st.rerun()
-    with col3:
-        if st.button("📰 News", use_container_width=True):
-            st.session_state.messages.append({"role": "user", "content": "Show top tech news headlines"})
-            st.session_state.ai_processing = True
-            st.rerun()
-            
-    st.markdown("---")
-    # Dynamic key allows us to programmatically clear the uploader after sending
-    if "uploader_id" not in st.session_state:
-        st.session_state.uploader_id = 0
-    file_key = f"file_input_{st.session_state.uploader_id}"
-    uploaded_files = st.file_uploader("Upload files (Images, PDF, TXT)", accept_multiple_files=True, key=file_key)
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 
 
@@ -1450,19 +1430,4 @@ if st.session_state.get('ai_processing', False):
         st.error(f"Error: {str(e)}")
         st.session_state.ai_processing = False
 
-# --- GLOBAL LAYOUT OVERDRIVE (Final Cloud Fix) ---
-st.markdown("""
-<style>
-    /* Force the tool button to sit perfectly neat at the bottom left */
-    [data-testid="stPopover"] {
-        position: fixed !important;
-        bottom: 30px !important; 
-        left: 340px !important;
-        z-index: 1000000 !important;
-    }
-    /* Specifically hide the duplication if it happens */
-    div[data-testid="stMainBlockContainer"] .stPopover {
-         visibility: visible !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+        st.session_state.ai_processing = False
