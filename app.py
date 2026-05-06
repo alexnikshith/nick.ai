@@ -294,11 +294,7 @@ st.markdown("""
     .input-mic {
         display: none !important;
     }
-    #plus-button-container {
-        display: block !important;
-        margin-top: 10px !important;
-    }
-    
+
     /* Hide chat input scrollbar handle */
     textarea[data-testid="stChatInputTextArea"] {
         scrollbar-width: none !important;
@@ -377,10 +373,13 @@ st.markdown("""
         height: 25px !important;
     }
     
-    /* Sidebar styling */
+    /* Sidebar styling - Hardened for Cloud */
     section[data-testid="stSidebar"] {
         background-color: #0A0A0A;
         border-right: 1px solid rgba(187, 134, 252, 0.1);
+        min-width: 320px !important;
+        max-width: 320px !important;
+        width: 320px !important;
     }
     
     /* Sidebar buttons */
@@ -664,18 +663,19 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* Plus button container logic */
-    #plus-button-container {
-        position: fixed;
-        bottom: 85px;
-        left: 280px;
-        z-index: 1000;
+    /* Premium Composer Tools - Safe Fixed Positioning (Cloud Hardened) */
+    body #plus-button-container {
+        position: fixed !important;
+        bottom: 20px !important;
+        left: 340px !important;
+        z-index: 999999 !important;
         display: block !important;
     }
     
     @media (max-width: 768px) {
         #plus-button-container {
-            left: 20px;
+            left: 20px !important;
+            bottom: 80px !important; /* Avoid overlap with mobile keyboard */
         }
     }
     
@@ -724,22 +724,24 @@ st.markdown("""
     [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
         margin-right: auto !important;
         margin-left: 0 !important;
-        background-color: #1A1A1A !important;
+        background-color: rgba(26, 26, 26, 0.75) !important;
+        backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         border-bottom-left-radius: 0.2rem !important;
         width: fit-content !important;
-        min-width: 100px !important;
+        min-width: 120px !important;
     }
     
     /* User Message (Right Aligned) */
     [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
         margin-left: auto !important;
         margin-right: 0 !important;
-        background-color: #2D2D2D !important;
-        border: 1px solid rgba(187, 134, 252, 0.2) !important;
+        background-color: rgba(187, 134, 252, 0.12) !important;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(187, 134, 252, 0.25) !important;
         border-bottom-right-radius: 0.2rem !important;
         width: fit-content !important;
-        min-width: 100px !important;
+        min-width: 120px !important;
     }
 
     /* Remove the default Streamlit message padding and flex gaps since avatars are gone */
@@ -1132,15 +1134,18 @@ with st.popover("➕", key="composer_tools_popover"):
                 
                 # Create message and attach images from file_input if any
                 user_msg = {"role": "user", "content": voice_text}
-                if "file_input" in st.session_state and st.session_state.file_input:
+                current_file_key = f"file_input_{st.session_state.uploader_id}"
+                if current_file_key in st.session_state and st.session_state[current_file_key]:
                     captured_images = []
-                    for f in st.session_state.file_input:
+                    for f in st.session_state[current_file_key]:
                         if f.type.startswith('image/') or f.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
                             import base64
                             img_b64 = base64.b64encode(f.getvalue()).decode()
                             captured_images.append(f"data:{f.type if f.type else 'image/jpeg'};base64,{img_b64}")
                     if captured_images:
                         user_msg["images"] = captured_images
+                        # Clear uploader for next turn
+                        st.session_state.uploader_id += 1
                 
                 st.session_state.messages.append(user_msg)
                 
@@ -1179,8 +1184,11 @@ with st.popover("➕", key="composer_tools_popover"):
             st.rerun()
             
     st.markdown("---")
-    # Using a key ensures the file uploader state persists during reruns
-    uploaded_files = st.file_uploader("Upload files (Images, PDF, TXT)", accept_multiple_files=True, key="file_input")
+    # Dynamic key allows us to programmatically clear the uploader after sending
+    if "uploader_id" not in st.session_state:
+        st.session_state.uploader_id = 0
+    file_key = f"file_input_{st.session_state.uploader_id}"
+    uploaded_files = st.file_uploader("Upload files (Images, PDF, TXT)", accept_multiple_files=True, key=file_key)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1190,15 +1198,18 @@ st.markdown('</div>', unsafe_allow_html=True)
 if prompt := st.chat_input("Ask anything..."):
     # Create message and attach images from file_input if any
     user_msg = {"role": "user", "content": prompt}
-    if "file_input" in st.session_state and st.session_state.file_input:
+    current_file_key = f"file_input_{st.session_state.uploader_id}"
+    if current_file_key in st.session_state and st.session_state[current_file_key]:
         captured_images = []
-        for f in st.session_state.file_input:
+        for f in st.session_state[current_file_key]:
             if f.type.startswith('image/') or f.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
                 import base64
                 img_b64 = base64.b64encode(f.getvalue()).decode()
                 captured_images.append(f"data:{f.type if f.type else 'image/jpeg'};base64,{img_b64}")
         if captured_images:
             user_msg["images"] = captured_images
+            # Clear uploader for next turn
+            st.session_state.uploader_id += 1
 
     st.session_state.messages.append(user_msg)
     st.session_state.ai_processing = True
