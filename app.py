@@ -57,6 +57,16 @@ def get_image_base64(url):
         pass
     return None
 
+def get_base64_image(file_path):
+    """Helper to convert local images to base64 for HTML embedding."""
+    try:
+        if os.path.exists(file_path):
+            with open(file_path, "rb") as f:
+                return base64.b64encode(f.read()).decode()
+    except:
+        pass
+    return ""
+
 # --- HELPER FUNCTIONS FOR CHAT HISTORY ---
 def save_chat(chat_id, title, messages, project="General", pinned=False, updated_at=None):
     file_path = os.path.join(CHATS_DIR, f"{chat_id}.json")
@@ -654,10 +664,19 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* Restored natural flow for tools */
+    /* Plus button container logic */
     #plus-button-container {
+        position: fixed;
+        bottom: 85px;
+        left: 280px;
+        z-index: 1000;
         display: block !important;
-        margin-top: 10px !important;
+    }
+    
+    @media (max-width: 768px) {
+        #plus-button-container {
+            left: 20px;
+        }
     }
     
     /* Style the Popover Button to match the image */
@@ -707,8 +726,8 @@ st.markdown("""
         margin-left: 0 !important;
         background-color: #1A1A1A !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-bottom-left-radius: 0.2rem !important; /* WhatsApp sharp corner */
-        width: fit-content !important; /* SHRINK TO IMAGE SIZE */
+        border-bottom-left-radius: 0.2rem !important;
+        width: fit-content !important;
         min-width: 100px !important;
     }
     
@@ -719,7 +738,7 @@ st.markdown("""
         background-color: #2D2D2D !important;
         border: 1px solid rgba(187, 134, 252, 0.2) !important;
         border-bottom-right-radius: 0.2rem !important;
-        width: fit-content !important; /* SHRINK TO TEXT SIZE */
+        width: fit-content !important;
         min-width: 100px !important;
     }
 
@@ -1002,6 +1021,15 @@ if not st.session_state.messages:
     st.markdown('<div style="height: 15vh;"></div>', unsafe_allow_html=True)
     st.markdown(f'<div style="display: flex; justify-content: center; width: 100%;"><h1 style="text-align: center; color: #FFFFFF; font-family: \'Outfit\', sans-serif; font-weight: 500; font-size: 2.2rem; opacity: 0.9; width: 100%; margin: 0 auto;">{quote}</h1></div>', unsafe_allow_html=True)
 
+    # Show live preview of uploaded images in the empty state
+    if "file_input" in st.session_state and st.session_state.file_input:
+        st.markdown("<br>", unsafe_allow_html=True)
+        cols = st.columns(min(len(st.session_state.file_input), 4))
+        for i, f in enumerate(st.session_state.file_input):
+            if f.type.startswith('image/') or f.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                with cols[i % 4]:
+                    st.image(f, caption=f.name, use_container_width=True)
+
 # Display messages from session state
 if st.session_state.messages:
     # This pushes the conversation to the bottom of the screen
@@ -1009,6 +1037,11 @@ if st.session_state.messages:
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
+        # First, render any uploaded images attached to this message
+        if "images" in msg:
+            for img_data in msg["images"]:
+                st.image(img_data, use_container_width=True)
+        
         content = msg["content"]
         # Detection logic for both standard and fallback triggers
         img_trigger = None
@@ -1070,7 +1103,7 @@ for msg in st.session_state.messages:
 if not st.session_state.messages:
     st.markdown('<div style="height: 29vh;"></div>', unsafe_allow_html=True)
 st.markdown('<div id="plus-button-container">', unsafe_allow_html=True)
-with st.popover("➕"):
+with st.popover("➕", key="composer_tools_popover"):
     st.markdown("#### Tools & Voice")
     
     # 1. Voice Input (Integrated & Auto-Trigger!)
@@ -1096,7 +1129,20 @@ with st.popover("➕"):
             if "Error" not in voice_text:
                 st.session_state.ai_processing = True
                 st.session_state.audio_counter += 1 # Reset the component for next time
-                st.session_state.messages.append({"role": "user", "content": voice_text})
+                
+                # Create message and attach images from file_input if any
+                user_msg = {"role": "user", "content": voice_text}
+                if "file_input" in st.session_state and st.session_state.file_input:
+                    captured_images = []
+                    for f in st.session_state.file_input:
+                        if f.type.startswith('image/') or f.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                            import base64
+                            img_b64 = base64.b64encode(f.getvalue()).decode()
+                            captured_images.append(f"data:{f.type if f.type else 'image/jpeg'};base64,{img_b64}")
+                    if captured_images:
+                        user_msg["images"] = captured_images
+                
+                st.session_state.messages.append(user_msg)
                 
                 # Generate title for new chats
                 if len(st.session_state.messages) <= 2:
@@ -1115,35 +1161,46 @@ with st.popover("➕"):
     st.markdown("---")
     
     # 2. File Uploads
-    uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True, label_visibility="collapsed")
-    
-    st.markdown("---")
-    
-    # 3. Live Dashboard Widgets
-    st.markdown("#### Live Dashboard")
-    wcol1, wcol2, wcol3 = st.columns(3)
-    with wcol1:
-        if st.button("🌦️\nWeather", use_container_width=True):
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("🌦️ Weather", use_container_width=True):
             st.session_state.messages.append({"role": "user", "content": "Get live weather updates"})
             st.session_state.ai_processing = True
             st.rerun()
-    with wcol2:
-        if st.button("📈\nMarket", use_container_width=True):
+    with col2:
+        if st.button("💹 Stocks", use_container_width=True):
             st.session_state.messages.append({"role": "user", "content": "Check current stock and crypto prices"})
             st.session_state.ai_processing = True
             st.rerun()
-    with wcol3:
-        if st.button("📰\nTech", use_container_width=True):
+    with col3:
+        if st.button("📰 News", use_container_width=True):
             st.session_state.messages.append({"role": "user", "content": "Show top tech news headlines"})
             st.session_state.ai_processing = True
             st.rerun()
+            
+    st.markdown("---")
+    # Using a key ensures the file uploader state persists during reruns
+    uploaded_files = st.file_uploader("Upload files (Images, PDF, TXT)", accept_multiple_files=True, key="file_input")
+
 st.markdown('</div>', unsafe_allow_html=True)
 
 
 
 # Native chat input - button sits inside the bar at the right edge
 if prompt := st.chat_input("Ask anything..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Create message and attach images from file_input if any
+    user_msg = {"role": "user", "content": prompt}
+    if "file_input" in st.session_state and st.session_state.file_input:
+        captured_images = []
+        for f in st.session_state.file_input:
+            if f.type.startswith('image/') or f.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                import base64
+                img_b64 = base64.b64encode(f.getvalue()).decode()
+                captured_images.append(f"data:{f.type if f.type else 'image/jpeg'};base64,{img_b64}")
+        if captured_images:
+            user_msg["images"] = captured_images
+
+    st.session_state.messages.append(user_msg)
     st.session_state.ai_processing = True
     if len(st.session_state.messages) <= 2:
         st.session_state.chat_title = generate_title(prompt)
@@ -1188,42 +1245,77 @@ if st.session_state.get('ai_processing', False):
             "\n5. BE CONVERSATIONAL: Respond naturally to chat, but keep it brief when tools are involved."
             "\n6. CELEBRITIES: For public figures, search the web first. If a direct photo URL is found (ends in .jpg/png), use: [REAL_IMAGE: url]. Otherwise, use a hyper-detailed [IMAGE: prompt]. Accuracy is #1."
         )
-        api_messages = [{
-            "role": "system",
-            "content": system_instructions
-        }]
-
+        
+        # Context gathering
+        extra_system_content = ""
+        image_attachments = []
+        has_image = False
+        
         # 1. File & Image Attachments
         if uploaded_files:
             for file in uploaded_files:
                 try:
-                    if file.type.startswith('image/'):
+                    if file.type.startswith('image/') or file.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                        has_image = True
                         img_data = base64.b64encode(file.getvalue()).decode()
-                        api_messages.append({
-                            "role": "user", 
-                            "content": [
-                                {"type": "text", "text": "Analyze this image."},
-                                {"type": "image_url", "image_url": {"url": f"data:{file.type};base64,{img_data}"}}
-                            ]
+                        image_attachments.append({
+                            "type": "image_url", 
+                            "image_url": {"url": f"data:{file.type if file.type else 'image/jpeg'};base64,{img_data}"}
                         })
                     elif file.name.endswith('.pdf'):
                         pdf_reader = PyPDF2.PdfReader(file)
                         text = "".join(page.extract_text() for page in pdf_reader.pages)
-                        api_messages.append({"role": "system", "content": f"PDF Content ('{file.name}'):\n{text[:2000]}"})
+                        extra_system_content += f"\n\nPDF Content ('{file.name}'):\n{text[:2000]}"
                     elif file.name.endswith(('.csv', '.txt', '.py', '.js', '.html', '.css')):
                         text = file.getvalue().decode("utf-8")
-                        api_messages.append({"role": "system", "content": f"File Content ('{file.name}'):\n{text[:3000]}"})
+                        extra_system_content += f"\n\nFile Content ('{file.name}'):\n{text[:3000]}"
                 except Exception as file_err:
-                    api_messages.append({"role": "system", "content": f"Error reading file {file.name}: {str(file_err)}"})
+                    extra_system_content += f"\n\nError reading file {file.name}: {str(file_err)}"
 
-        # 2. Add recent history (last 4 turns for better context)
+        # 2. Research (Tavily)
+        web_ctx = ""
+        with st.status("🌐 nick.ai is researching using Tavily...", expanded=False) as status:
+            try:
+                tavily = TavilyClient(api_key="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")
+                search_results = tavily.search(query=prompt, search_depth="advanced", max_results=5, include_images=True)
+                
+                if search_results and (search_results.get("results") or search_results.get("images")):
+                    web_ctx = "### REAL-TIME WEB DATA (FROM TAVILY):\n\n"
+                    if search_results.get("results"):
+                        for i, r in enumerate(search_results["results"], 1):
+                            web_ctx += f"**[{i}] {r['title']}**\n{r['content']}\nSource: {r['url']}\n\n"
+                    if search_results.get("images"):
+                        web_ctx += "\n### DISCOVERED REAL IMAGE URLS:\n"
+                        for img_url in search_results["images"]:
+                            web_ctx += f"- {img_url}\n"
+                    status.update(label=f"✅ Research complete ({len(search_results.get('results', []))} sources + {len(search_results.get('images', []))} images)", state="complete", expanded=False)
+                else:
+                    status.update(label="❓ No live data found on Tavily", state="complete", expanded=False)
+            except Exception as e:
+                status.update(label=f"⚠️ Tavily Search failed: {str(e)}", state="error", expanded=False)
+
+        # 3. Assemble api_messages
+        combined_system = system_instructions + extra_system_content
+        if web_ctx:
+            combined_system += "\n\n" + web_ctx
+            
+        api_messages = [{"role": "system", "content": combined_system}]
+
+        # Add recent history
         recent = [m for m in st.session_state.messages[-8:-1] if m["role"] in ("user", "assistant")]
         for m in recent:
             content = m["content"]
             if isinstance(content, str):
-                content = content[:400] # Aggressive trim to avoid 413 errors
+                content = content[:400]
             api_messages.append({"role": m["role"], "content": content})
-        api_messages.append({"role": "user", "content": prompt})
+            
+        # Add final user prompt (with images if any)
+        if has_image:
+            user_content = [{"type": "text", "text": prompt}]
+            user_content.extend(image_attachments)
+            api_messages.append({"role": "user", "content": user_content})
+        else:
+            api_messages.append({"role": "user", "content": prompt})
 
         # --- RESPONSE: Thinking Animation ---
         thinking_placeholder = st.empty()
@@ -1243,52 +1335,60 @@ if st.session_state.get('ai_processing', False):
         response_placeholder = st.empty()
         full_response = ""
 
-        # --- RESPONSE: Use Tavily (Professional AI Search) ---
-        with st.status("🌐 nick.ai is researching using Tavily...", expanded=False) as status:
-            try:
-                # Initialize Tavily
-                tavily = TavilyClient(api_key="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")
-                
-                # Search for the query with Image discovery enabled
-                search_results = tavily.search(query=prompt, search_depth="advanced", max_results=5, include_images=True)
-                
-                if search_results and (search_results.get("results") or search_results.get("images")):
-                    web_ctx = "### REAL-TIME WEB DATA (FROM TAVILY):\n\n"
-                    
-                    if search_results.get("results"):
-                        for i, r in enumerate(search_results["results"], 1):
-                            web_ctx += f"**[{i}] {r['title']}**\n{r['content']}\nSource: {r['url']}\n\n"
-                    
-                    if search_results.get("images"):
-                        web_ctx += "\n### DISCOVERED REAL IMAGE URLS (Use these for [REAL_IMAGE:] if relevant):\n"
-                        for img_url in search_results["images"]:
-                            web_ctx += f"- {img_url}\n"
-                    
-                    # Add to messages as context
-                    api_messages.insert(1, {"role": "system", "content": web_ctx})
-                    status.update(label=f"✅ Research complete ({len(search_results.get('results', []))} sources + {len(search_results.get('images', []))} images)", state="complete", expanded=False)
-                else:
-                    status.update(label="❓ No live data found on Tavily", state="complete", expanded=False)
-            except Exception as e:
-                status.update(label=f"⚠️ Tavily Search failed: {str(e)}", state="error", expanded=False)
+        # --- FINAL RESPONSE: Smart Model Selection ---
+        # We use a vision-capable model as the base if any image is present to prevent 'content must be string' errors
+        if has_image:
+            # Llama 4 Scout is the natively multimodal standard on Groq in 2026
+            model_to_use = "meta-llama/llama-4-scout-17b-16e-instruct" 
+            
+            # SINGLE MESSAGE STRUCTURE: Most robust for vision
+            unified_prompt = f"{system_instructions}\n\n"
+            if extra_system_content: unified_prompt += f"FILE CONTEXT:\n{extra_system_content}\n\n"
+            if web_ctx: unified_prompt += f"SEARCH RESULTS:\n{web_ctx}\n\n"
+            unified_prompt += f"QUESTION: {prompt}"
+            
+            user_content = [{"type": "text", "text": unified_prompt}]
+            user_content.extend(image_attachments)
+            api_messages = [{"role": "user", "content": user_content}]
+        else:
+            model_to_use = "llama-3.3-70b-versatile" if st.session_state.codex_mode else "llama-3.1-8b-instant"
+            
+            # Standard Text Structure
+            api_messages = [{"role": "system", "content": system_instructions + extra_system_content + web_ctx}]
+            # Deep Sanitation: Ensure NO non-string history items exist
+            recent = [m for m in st.session_state.messages[-8:-1] if m["role"] in ("user", "assistant")]
+            for m in recent:
+                content = m["content"]
+                if not isinstance(content, str):
+                    content = str(content)
+                api_messages.append({"role": m["role"], "content": content[:500]})
+            api_messages.append({"role": "user", "content": str(prompt)})
 
-        # --- FINAL RESPONSE: Smart Fallback (70b -> 8b) ---
         thinking_placeholder.empty()
+        
         try:
             stream = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model=model_to_use,
                 messages=api_messages,
                 stream=True,
             )
         except Exception as e:
-            if "429" in str(e):
-                # Fallback to 8b if 70b is rate limited
-                st.warning("⚠️ High-performance model is busy. Switching to 'Fast Mode' (8B)...")
-                stream = client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
-                    messages=api_messages,
-                    stream=True,
-                )
+            # If the specific model fails, try the most robust vision-capable fallback
+            if model_to_use != "meta-llama/llama-4-scout-17b-16e-instruct":
+                try:
+                    st.warning("🔄 Upgrading to Llama 4 Scout Vision Engine...")
+                    # Sanitize messages for the fallback (force strings for everything)
+                    sanitized_fallback = []
+                    for m in api_messages:
+                        sanitized_fallback.append({"role": m["role"], "content": str(m["content"]) if not has_image else m["content"]})
+                    
+                    stream = client.chat.completions.create(
+                        model="meta-llama/llama-4-scout-17b-16e-instruct",
+                        messages=sanitized_fallback,
+                        stream=True,
+                    )
+                except:
+                    raise e
             else:
                 raise e
 
