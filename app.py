@@ -1216,19 +1216,21 @@ if st.session_state.get('ai_processing', False):
         image_attachments = []
         has_image = False
         
-        # 1. File & Image Attachments
-        current_file_key = f"file_input_{st.session_state.uploader_id}"
+        # 1. Image Attachments (From current message)
+        last_msg = st.session_state.messages[-1]
+        if "images" in last_msg:
+            for img_url in last_msg["images"]:
+                has_image = True
+                image_attachments.append({
+                    "type": "image_url", 
+                    "image_url": {"url": img_url}
+                })
+        
+        # 1.5 Document Attachments (Still pull from uploader if needed, but safer to check session state)
+        current_file_key = f"file_input_{st.session_state.uploader_id - 1}" # Look at previous key
         if current_file_key in st.session_state and st.session_state[current_file_key]:
             for file in st.session_state[current_file_key]:
-                try:
-                    if file.type.startswith('image/') or file.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                        has_image = True
-                        img_data = base64.b64encode(file.getvalue()).decode()
-                        image_attachments.append({
-                            "type": "image_url", 
-                            "image_url": {"url": f"data:{file.type if file.type else 'image/jpeg'};base64,{img_data}"}
-                        })
-                    elif file.name.endswith('.pdf'):
+                if file.name.endswith('.pdf'):
                         pdf_reader = PyPDF2.PdfReader(file)
                         text = "".join(page.extract_text() for page in pdf_reader.pages)
                         extra_system_content += f"\n\nPDF Content ('{file.name}'):\n{text[:2000]}"
