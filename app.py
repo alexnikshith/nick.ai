@@ -666,7 +666,7 @@ st.markdown("""
     /* Premium Composer Tools - Correct Component Targeting */
     .integrated-tools div[data-testid="stPopover"] {
         position: fixed !important;
-        bottom: 15px !important;
+        bottom: 20px !important;
         left: 340px !important;
         z-index: 1000000 !important;
         display: block !important;
