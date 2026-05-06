@@ -663,19 +663,19 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* Premium Composer Tools - Ultra-Hardened Fixed Positioning */
-    .main #plus-button-container {
+    /* Premium Composer Tools - Correct Component Targeting */
+    .integrated-tools div[data-testid="stPopover"] {
         position: fixed !important;
-        bottom: 15px !important; /* Lowers it even further */
+        bottom: 15px !important;
         left: 340px !important;
         z-index: 1000000 !important;
         display: block !important;
     }
     
     @media (max-width: 768px) {
-        #plus-button-container {
+        .integrated-tools div[data-testid="stPopover"] {
             left: 20px !important;
-            bottom: 80px !important; /* Avoid overlap with mobile keyboard */
+            bottom: 80px !important;
         }
     }
     
@@ -1104,7 +1104,8 @@ for msg in st.session_state.messages:
 # Tools Menu (Add Photos, Web Search, Voice, etc)
 if not st.session_state.messages:
     st.markdown('<div style="height: 29vh;"></div>', unsafe_allow_html=True)
-st.markdown('<div id="plus-button-container">', unsafe_allow_html=True)
+
+st.markdown('<div class="integrated-tools">', unsafe_allow_html=True)
 with st.popover("➕", key="composer_tools_popover"):
     st.markdown("#### Tools & Voice")
     
