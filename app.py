@@ -663,17 +663,17 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* Premium Composer Tools - Correct Component Targeting */
-    .integrated-tools div[data-testid="stPopover"] {
+    /* Premium Composer Tools - Positional Targeting for Cloud Stability */
+    /* This targets the 2nd popover in the main area (The + button) */
+    div[data-testid="stMainBlockContainer"] div[data-testid="stPopover"]:nth-of-type(2) {
         position: fixed !important;
-        bottom: 5px !important; /* Aggressively lowered to sit flush */
+        bottom: 10px !important; /* Brought down by 2.5cm total */
         left: 340px !important;
         z-index: 1000000 !important;
-        display: block !important;
     }
     
     @media (max-width: 768px) {
-        .integrated-tools div[data-testid="stPopover"] {
+        div[data-testid="stMainBlockContainer"] div[data-testid="stPopover"]:nth-of-type(2) {
             left: 20px !important;
             bottom: 80px !important;
         }
