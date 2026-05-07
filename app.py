@@ -377,9 +377,9 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         background-color: #0A0A0A;
         border-right: 1px solid rgba(187, 134, 252, 0.1);
-        min-width: 320px !important;
-        max-width: 320px !important;
-        width: 320px !important;
+        min-width: 360px !important;
+        max-width: 360px !important;
+        width: 360px !important;
     }
     
     /* Sidebar buttons */
