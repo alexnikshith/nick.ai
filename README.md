@@ -43,4 +43,3 @@ Created, developed, and trained by **Nikshith Gurram**.
 This project was engineered to solve the "Privacy Gap" in modern AI. By leveraging local inference and Retrieval-Augmented Generation (RAG), **nick.ai** provides the utility of a world-class assistant while maintaining absolute data sovereignty.
 
 ---
-Developed with ❤️ by **Nikshith Gurram**
