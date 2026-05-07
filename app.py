@@ -228,15 +228,15 @@ def auth_dialog(limit_reached=False):
 
         if st.button("🇬 Continue with Google", use_container_width=True):
             st.session_state.auth_provider = "Google"
-            st.session_state.auth_step = "oauth_sim"
+            st.session_state.auth_step = "oauth_account"
             st.rerun()
         if st.button("🍎 Continue with Apple", use_container_width=True):
             st.session_state.auth_provider = "Apple"
-            st.session_state.auth_step = "oauth_sim"
+            st.session_state.auth_step = "oauth_account"
             st.rerun()
         if st.button("📞 Continue with phone", use_container_width=True):
             st.session_state.auth_provider = "Phone"
-            st.session_state.auth_step = "oauth_sim"
+            st.session_state.auth_step = "oauth_account"
             st.rerun()
             
         st.markdown("""
@@ -256,24 +256,58 @@ def auth_dialog(limit_reached=False):
             else:
                 st.error("Please enter a valid email address.")
 
-    elif st.session_state.auth_step == "oauth_sim":
-        st.markdown(f"#### Connecting to {st.session_state.auth_provider}...")
-        progress_text = "Authenticating and verifying credentials..."
-        my_bar = st.progress(0, text=progress_text)
-        import time
-        for percent_complete in range(100):
-            time.sleep(0.015)
-            my_bar.progress(percent_complete + 1, text=progress_text)
-        time.sleep(0.5)
-        st.success("Successfully verified!")
-        time.sleep(0.5)
+    elif st.session_state.auth_step == "oauth_account":
+        st.markdown(f"#### Sign in with {st.session_state.auth_provider}")
+        st.markdown(f"<p style='color: #A0A0A0; font-size: 14px;'>Choose an account to continue to nick.ai</p>", unsafe_allow_html=True)
         
-        st.session_state.is_logged_in = True
-        st.session_state.user_email = f"user@{st.session_state.auth_provider.lower()}.com"
-        st.session_state.user_display_name = f"{st.session_state.auth_provider} User"
-        st.session_state.show_limit_dialog = False
-        st.session_state.auth_step = "select"
-        st.rerun()
+        # Simulating account picker
+        if st.button("👤 Nikshith Gurram (nikshithgurram2006@gmail.com)", use_container_width=True):
+            st.session_state.auth_email = "nikshithgurram2006@gmail.com"
+            st.session_state.auth_step = "oauth_confirm"
+            st.rerun()
+        if st.button("👤 Admin_Fed (fed.nexus@gmail.com)", use_container_width=True):
+            st.session_state.auth_email = "fed.nexus@gmail.com"
+            st.session_state.auth_step = "oauth_confirm"
+            st.rerun()
+            
+        st.markdown("<div style='text-align: center; margin: 15px 0; color: #555; font-size: 14px;'>OR Use another account</div>", unsafe_allow_html=True)
+        oauth_email = st.text_input("Email or phone", placeholder="Email or phone")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Cancel", use_container_width=True):
+                st.session_state.auth_step = "select"
+                st.rerun()
+        with col2:
+            if st.button("Next", type="primary", use_container_width=True):
+                if oauth_email:
+                    st.session_state.auth_email = oauth_email
+                    st.session_state.auth_step = "oauth_confirm"
+                    st.rerun()
+                else:
+                    st.error("Please enter an email or phone number.")
+
+    elif st.session_state.auth_step == "oauth_confirm":
+        st.markdown(f"#### You're signing in to nick.ai")
+        st.markdown(f"<div style='padding: 12px; border: 1px solid #444; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 16px;'>👤 <strong>{st.session_state.auth_email}</strong></div>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 14px; color: #A0A0A0; margin-bottom: 25px;'>Review nick.ai's privacy policy and Terms of Service to understand how your data will be processed and protected.</p>", unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Cancel", use_container_width=True, key="cancel_confirm"):
+                st.session_state.auth_step = "oauth_account"
+                st.rerun()
+        with col2:
+            if st.button("Continue", type="primary", use_container_width=True, key="continue_confirm"):
+                with st.spinner("Authenticating..."):
+                    import time
+                    time.sleep(1.5)
+                st.session_state.is_logged_in = True
+                st.session_state.user_email = st.session_state.auth_email
+                st.session_state.user_display_name = st.session_state.auth_email.split('@')[0].capitalize()
+                st.session_state.show_limit_dialog = False
+                st.session_state.auth_step = "select"
+                st.rerun()
 
     elif st.session_state.auth_step == "otp":
         st.markdown(f"#### Verify your email")
