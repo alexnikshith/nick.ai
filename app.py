@@ -426,29 +426,33 @@ st.markdown("""
     }
     
     /* Top Login Button Pill */
-    div[data-testid="column"]:nth-child(2) button {
+    div[data-testid="column"]:has(.login-hook) button {
         background-color: white !important;
         color: black !important;
         border-radius: 50px !important;
         font-weight: 600 !important;
         font-size: 16px !important;
         border: 1px solid white !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
     }
-    div[data-testid="column"]:nth-child(2) button:hover {
+    div[data-testid="column"]:has(.login-hook) button:hover {
         background-color: #E0E0E0 !important;
         border-color: #E0E0E0 !important;
     }
     
     /* Top Signup Button Pill */
-    div[data-testid="column"]:nth-child(3) button {
+    div[data-testid="column"]:has(.signup-hook) button {
         background-color: transparent !important;
         color: white !important;
         border-radius: 50px !important;
         font-weight: 600 !important;
         font-size: 16px !important;
         border: 1px solid rgba(255,255,255,0.4) !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
     }
-    div[data-testid="column"]:nth-child(3) button:hover {
+    div[data-testid="column"]:has(.signup-hook) button:hover {
         background-color: rgba(255,255,255,0.1) !important;
     }
     
@@ -1287,10 +1291,12 @@ else:
     # Display neat pixel-perfect Login/Signup pills for unregistered users
     ui_col1, ui_col2, ui_col3 = st.columns([0.65, 0.15, 0.20])
     with ui_col2:
+        st.markdown('<div class="login-hook" style="display:none;"></div>', unsafe_allow_html=True)
         if st.button("Log in", use_container_width=True):
             st.session_state.show_auth_dialog_manual = True
             st.rerun()
     with ui_col3:
+        st.markdown('<div class="signup-hook" style="display:none;"></div>', unsafe_allow_html=True)
         if st.button("Sign up for free", use_container_width=True):
             st.session_state.show_auth_dialog_manual = True
             st.rerun()
