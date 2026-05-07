@@ -425,8 +425,8 @@ st.markdown("""
         background-color: #FF1A1A !important;
     }
     
-    /* Top Login Button Pill - Using kind="primary" specifically for this button */
-    [data-testid="stMain"] [data-testid="column"] button[kind="primary"] {
+    /* Global Obsidian Button Theme */
+    button[kind="primary"] {
         background-color: white !important;
         border-radius: 50px !important;
         border: 1px solid white !important;
@@ -435,18 +435,17 @@ st.markdown("""
         height: auto !important;
         min-height: 45px !important;
     }
-    [data-testid="stMain"] [data-testid="column"] button[kind="primary"] p {
+    button[kind="primary"] p {
         color: black !important;
         font-weight: 600 !important;
         font-size: 16px !important;
     }
-    [data-testid="stMain"] [data-testid="column"] button[kind="primary"]:hover {
+    button[kind="primary"]:hover {
         background-color: #E0E0E0 !important;
         border-color: #E0E0E0 !important;
     }
     
-    /* Top Signup Button Pill - Using kind="secondary" specifically for this button */
-    [data-testid="stMain"] [data-testid="column"] button[kind="secondary"] {
+    button[kind="secondary"] {
         background-color: transparent !important;
         border-radius: 50px !important;
         border: 1px solid rgba(255,255,255,0.4) !important;
@@ -455,13 +454,29 @@ st.markdown("""
         height: auto !important;
         min-height: 45px !important;
     }
-    [data-testid="stMain"] [data-testid="column"] button[kind="secondary"] p {
+    button[kind="secondary"] p {
         color: white !important;
         font-weight: 600 !important;
         font-size: 16px !important;
     }
-    [data-testid="stMain"] [data-testid="column"] button[kind="secondary"]:hover {
+    button[kind="secondary"]:hover {
         background-color: rgba(255,255,255,0.1) !important;
+    }
+    
+    /* Specific Override for Red Logout Button */
+    div[data-testid="stPopoverBody"] div[data-testid="stElementContainer"]:last-child button {
+        background-color: #FF3B30 !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        margin-top: 5px !important;
+    }
+    div[data-testid="stPopoverBody"] div[data-testid="stElementContainer"]:last-child button p {
+        color: white !important;
+    }
+    div[data-testid="stPopoverBody"] div[data-testid="stElementContainer"]:last-child button:hover {
+        background-color: #FF1A1A !important;
     }
     
     /* Main container styling */
