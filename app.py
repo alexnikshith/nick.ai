@@ -192,7 +192,7 @@ def check_action_limit():
         else:
             st.session_state.unregistered_chat_count += 1
 
-@st.dialog("Log in or sign up")
+@st.dialog("Log in or sign up", width="large")
 def auth_dialog(limit_reached=False):
     st.markdown("""
         <style>
