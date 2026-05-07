@@ -308,6 +308,7 @@ def auth_dialog(limit_reached=False):
                 st.session_state.user_email = st.session_state.auth_email
                 st.session_state.user_display_name = st.session_state.auth_email.split('@')[0].capitalize()
                 st.session_state.show_limit_dialog = False
+                st.session_state.show_auth_dialog_manual = False
                 st.session_state.auth_step = "select"
                 st.rerun()
 
@@ -333,6 +334,7 @@ def auth_dialog(limit_reached=False):
                     st.session_state.user_email = st.session_state.auth_email
                     st.session_state.user_display_name = st.session_state.auth_email.split('@')[0].capitalize()
                     st.session_state.show_limit_dialog = False
+                    st.session_state.show_auth_dialog_manual = False
                     st.session_state.auth_step = "select"
                     st.rerun()
                 else:
