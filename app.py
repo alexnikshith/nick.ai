@@ -82,11 +82,40 @@ def load_chat(chat_id):
             return json.load(f)
     return None
 
+# --- PERSISTENT USER SETTINGS (MEMORY) ---
+def get_settings_path():
+    user_email = st.session_state.get("user_email", "guest")
+    safe_email = hashlib.sha256(user_email.encode()).hexdigest()[:12]
+    return os.path.join(CHATS_DIR, f"settings_{safe_email}.json")
+
+def save_user_settings():
+    path = get_settings_path()
+    settings = {
+        "codex_mode": st.session_state.get("codex_mode", False),
+        "voice_enabled": st.session_state.get("voice_enabled", False),
+        "kb_path": st.session_state.get("kb_path", ""),
+        "accent_color": st.session_state.get("accent_color", "#00F2FF"),
+        "user_display_name": st.session_state.get("user_display_name", "Nikshith Gurram"),
+        "user_username": st.session_state.get("user_username", "nikshithgurram2006")
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(settings, f)
+
+def load_user_settings():
+    path = get_settings_path()
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            pass
+    return {}
+
 def get_all_chats():
     chats = []
     user_email = st.session_state.get("user_email", "default")
     for filename in os.listdir(CHATS_DIR):
-        if filename.endswith(".json"):
+        if filename.endswith(".json") and not filename.startswith("settings_"):
             file_path = os.path.join(CHATS_DIR, filename)
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
@@ -196,9 +225,23 @@ def check_action_limit():
 def auth_dialog(limit_reached=False):
     st.markdown("""
         <style>
-            /* Additional Dialog Specific Fine-tuning */
+            /* Custom Dialog Styling */
             div[data-testid="stDialog"] div[data-testid="stMarkdownContainer"] p {
                 font-size: 1rem !important;
+            }
+            div[data-testid="stDialog"] button[kind="primary"] {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                border-radius: 20px !important;
+                font-weight: 600 !important;
+                border: none !important;
+            }
+            div[data-testid="stDialog"] button[kind="primary"]:hover {
+                background-color: #E0E0E0 !important;
+            }
+            div[data-testid="stDialog"] button[kind="secondary"] {
+                border-radius: 20px !important;
+                padding: 10px !important;
             }
         </style>
     """, unsafe_allow_html=True)
@@ -214,15 +257,15 @@ def auth_dialog(limit_reached=False):
         else:
             st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>You'll get smarter responses and can upload files, images, and more.</div>", unsafe_allow_html=True)
 
-        if st.button("🇬 Continue with Google", use_container_width=True, type="primary"):
+        if st.button("🇬 Continue with Google", use_container_width=True):
             st.session_state.auth_provider = "Google"
             st.session_state.auth_step = "oauth_account"
             st.rerun()
-        if st.button("🍎 Continue with Apple", use_container_width=True, type="primary"):
+        if st.button("🍎 Continue with Apple", use_container_width=True):
             st.session_state.auth_provider = "Apple"
             st.session_state.auth_step = "oauth_account"
             st.rerun()
-        if st.button("📞 Continue with phone", use_container_width=True, type="primary"):
+        if st.button("📞 Continue with phone", use_container_width=True):
             st.session_state.auth_provider = "Phone"
             st.session_state.auth_step = "oauth_account"
             st.rerun()
@@ -249,11 +292,11 @@ def auth_dialog(limit_reached=False):
         st.markdown(f"<p style='color: #A0A0A0; font-size: 14px;'>Choose an account to continue to nick.ai</p>", unsafe_allow_html=True)
         
         # Simulating account picker
-        if st.button("👤 Nikshith Gurram (nikshithgurram2006@gmail.com)", use_container_width=True, type="primary"):
+        if st.button("👤 Nikshith Gurram (nikshithgurram2006@gmail.com)", use_container_width=True):
             st.session_state.auth_email = "nikshithgurram2006@gmail.com"
             st.session_state.auth_step = "oauth_confirm"
             st.rerun()
-        if st.button("👤 Admin_Fed (fed.nexus@gmail.com)", use_container_width=True, type="primary"):
+        if st.button("👤 Admin_Fed (fed.nexus@gmail.com)", use_container_width=True):
             st.session_state.auth_email = "fed.nexus@gmail.com"
             st.session_state.auth_step = "oauth_confirm"
             st.rerun()
@@ -331,6 +374,9 @@ if st.session_state.show_limit_dialog:
 if st.session_state.show_auth_dialog_manual:
     auth_dialog(limit_reached=False)
 
+# Initialize settings from local memory if available
+saved_prefs = load_user_settings()
+
 if "current_chat_id" not in st.session_state:
     st.session_state.current_chat_id = str(uuid.uuid4())
     st.session_state.chat_title = "New chat"
@@ -340,13 +386,13 @@ if "current_chat_id" not in st.session_state:
 if "search_query" not in st.session_state:
     st.session_state.search_query = ""
 if "codex_mode" not in st.session_state:
-    st.session_state.codex_mode = False
+    st.session_state.codex_mode = saved_prefs.get("codex_mode", False)
 if "accent_color" not in st.session_state:
-    st.session_state.accent_color = "#00F2FF"
+    st.session_state.accent_color = saved_prefs.get("accent_color", "#00F2FF")
 if "kb_path" not in st.session_state:
-    st.session_state.kb_path = ""
+    st.session_state.kb_path = saved_prefs.get("kb_path", "")
 if "voice_enabled" not in st.session_state:
-    st.session_state.voice_enabled = False
+    st.session_state.voice_enabled = saved_prefs.get("voice_enabled", False)
 if "web_search_enabled" not in st.session_state:
     st.session_state.web_search_enabled = False
 if "deep_research_enabled" not in st.session_state:
@@ -360,11 +406,32 @@ if "current_project" not in st.session_state:
 if "chat_project" not in st.session_state:
     st.session_state.chat_project = "General"
 if "user_display_name" not in st.session_state:
-    st.session_state.user_display_name = "Nikshith Gurram"
+    st.session_state.user_display_name = saved_prefs.get("user_display_name", "Nikshith Gurram")
 if "user_username" not in st.session_state:
-    st.session_state.user_username = "nikshithgurram2006"
+    st.session_state.user_username = saved_prefs.get("user_username", "nikshithgurram2006")
+if "unregistered_chat_count" not in st.session_state:
+    st.session_state.unregistered_chat_count = 0
+if "show_limit_dialog" not in st.session_state:
+    st.session_state.show_limit_dialog = False
+if "show_auth_dialog_manual" not in st.session_state:
+    st.session_state.show_auth_dialog_manual = False
 
-# --- HANDLE SHARED LINKS & AUTH ACTIONS ---
+# --- HANDLE SHARED LINKS & RELOAD ACTIONS ---
+if "reload" in st.query_params:
+    # 1. Save current chat state
+    if "messages" in st.session_state and st.session_state.messages:
+        save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
+    
+    # 2. Store settings memory locally
+    save_user_settings()
+    
+    # 3. Reset to home state
+    st.session_state.current_chat_id = str(uuid.uuid4())
+    st.session_state.chat_title = "New chat"
+    st.session_state.messages = []
+    st.query_params.clear()
+    st.rerun()
+
 if "share" in st.query_params:
     share_id = st.query_params["share"]
     shared_data = load_chat(share_id)
@@ -990,14 +1057,16 @@ with st.sidebar:
     # Fixed Header Section
     logo_base64 = get_base64_image("logo.png")
     st.markdown(f"""
-        <div class="sidebar-branding">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="width: 40px; height: 40px;">
-                    <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
+        <a href="/?reload=true" target="_self" style="text-decoration: none;">
+            <div class="sidebar-branding">
+                <div style="display: flex; align-items: center; gap: 15px; cursor: pointer;">
+                    <div style="width: 40px; height: 40px;">
+                        <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
+                    </div>
+                    <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
                 </div>
-                <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
             </div>
-        </div>
+        </a>
         <div class="sidebar-content-spacer"></div>
     """, unsafe_allow_html=True)
     
