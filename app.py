@@ -416,7 +416,22 @@ if "show_limit_dialog" not in st.session_state:
 if "show_auth_dialog_manual" not in st.session_state:
     st.session_state.show_auth_dialog_manual = False
 
-# --- HANDLE SHARED LINKS ---
+# --- HANDLE SHARED LINKS & RELOAD ACTIONS ---
+if "reload" in st.query_params:
+    # 1. Save current chat state
+    if "messages" in st.session_state and st.session_state.messages:
+        save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
+    
+    # 2. Store settings memory locally
+    save_user_settings()
+    
+    # 3. Reset to home state
+    st.session_state.current_chat_id = str(uuid.uuid4())
+    st.session_state.chat_title = "New chat"
+    st.session_state.messages = []
+    st.query_params.clear()
+    st.rerun()
+
 if "share" in st.query_params:
     share_id = st.query_params["share"]
     shared_data = load_chat(share_id)
@@ -1039,59 +1054,21 @@ st.markdown("""
 
 # --- SIDEBAR UI (ChatGPT Style) ---
 with st.sidebar:
-    # Smart Logo & Fast Reload Logic (No white screen)
+    # Fixed Header Section
     logo_base64 = get_base64_image("logo.png")
-    
-    # CSS to TRULY hide the trigger column so it's not visible on screen
-    st.markdown("""
-        <style>
-            /* Completely suppress the second column in the sidebar header */
-            div[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2) {
-                display: none !important;
-                width: 0 !important;
-                flex: 0 1 0% !important;
-                min-width: 0 !important;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    # Use columns to house the trigger button - Column 2 is hidden by CSS above
-    logo_col, trigger_col = st.columns([10, 0.01])
-    
-    with logo_col:
-        # The pixel-perfect Branding (triggers the hidden button in trigger_col)
-        st.markdown(f"""
-            <div class="sidebar-branding" 
-                 onclick="window.parent.document.querySelectorAll('div[data-testid=\\'column\\']')[1].querySelector('button').click();" 
-                 style="cursor: pointer; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 15px;">
+    st.markdown(f"""
+        <a href="/?reload=true" target="_self" style="text-decoration: none;">
+            <div class="sidebar-branding">
+                <div style="display: flex; align-items: center; gap: 15px; cursor: pointer;">
                     <div style="width: 40px; height: 40px;">
                         <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
                     </div>
                     <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
                 </div>
             </div>
-        """, unsafe_allow_html=True)
-
-        
-    with trigger_col:
-        # This button is in a 0.01 width column - physically there but invisible
-        if st.button(" ", key="logo_reload_trigger"):
-            # 1. Save current chat state
-            if "messages" in st.session_state and st.session_state.messages:
-                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
-            
-            # 2. Store settings memory locally
-            save_user_settings()
-            
-            # 3. Reset to home state (Internal Rerun = Instant)
-            st.session_state.current_chat_id = str(uuid.uuid4())
-            st.session_state.chat_title = "New chat"
-            st.session_state.messages = []
-            st.query_params.clear()
-            st.rerun()
-    
-    st.markdown('<div class="sidebar-content-spacer"></div>', unsafe_allow_html=True)
+        </a>
+        <div class="sidebar-content-spacer"></div>
+    """, unsafe_allow_html=True)
     
     # 1. TOP MENU ITEMS
     if st.button("New chat", use_container_width=True):
