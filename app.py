@@ -1054,45 +1054,21 @@ st.markdown("""
 
 # --- SIDEBAR UI (ChatGPT Style) ---
 with st.sidebar:
-    # Smart Logo & Fast Reload Logic (No visible dedicated button)
+    # Fixed Header Section
     logo_base64 = get_base64_image("logo.png")
-    
-    # Use columns to hide the trigger button in a near-zero width column
-    logo_col, trigger_col = st.columns([20, 0.01])
-    
-    with logo_col:
-        # The Branding (triggers the hidden button in trigger_col)
-        st.markdown(f"""
-            <div class="sidebar-branding" 
-                 onclick="window.parent.document.querySelectorAll('div[data-testid=\\'column\\']')[1].querySelector('button').click();" 
-                 style="cursor: pointer; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 15px;">
+    st.markdown(f"""
+        <a href="/?reload=true" target="_self" style="text-decoration: none;">
+            <div class="sidebar-branding">
+                <div style="display: flex; align-items: center; gap: 15px; cursor: pointer;">
                     <div style="width: 40px; height: 40px;">
                         <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
                     </div>
                     <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
                 </div>
             </div>
-        """, unsafe_allow_html=True)
-        
-    with trigger_col:
-        # This button is in a 0.01 width column and has no visible text - physically there but invisible
-        if st.button(".", key="logo_fast_reload"):
-            # 1. Save current chat state
-            if "messages" in st.session_state and st.session_state.messages:
-                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
-            
-            # 2. Store settings memory locally
-            save_user_settings()
-            
-            # 3. Reset to home state (Instant Rerun)
-            st.session_state.current_chat_id = str(uuid.uuid4())
-            st.session_state.chat_title = "New chat"
-            st.session_state.messages = []
-            st.query_params.clear()
-            st.rerun()
-    
-    st.markdown('<div class="sidebar-content-spacer"></div>', unsafe_allow_html=True)
+        </a>
+        <div class="sidebar-content-spacer"></div>
+    """, unsafe_allow_html=True)
     
     # 1. TOP MENU ITEMS
     if st.button("New chat", use_container_width=True):
