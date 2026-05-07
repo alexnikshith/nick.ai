@@ -71,8 +71,9 @@ def get_base64_image(file_path):
 def save_chat(chat_id, title, messages, project="General", pinned=False, updated_at=None):
     file_path = os.path.join(CHATS_DIR, f"{chat_id}.json")
     timestamp = updated_at if updated_at else datetime.now().isoformat()
+    user_email = st.session_state.get("user_email", "default")
     with open(file_path, "w", encoding="utf-8") as f:
-        json.dump({"id": chat_id, "title": title, "project": project, "pinned": pinned, "updated_at": timestamp, "messages": messages}, f)
+        json.dump({"id": chat_id, "title": title, "project": project, "pinned": pinned, "updated_at": timestamp, "messages": messages, "user": user_email}, f)
 
 def load_chat(chat_id):
     file_path = os.path.join(CHATS_DIR, f"{chat_id}.json")
@@ -83,13 +84,15 @@ def load_chat(chat_id):
 
 def get_all_chats():
     chats = []
+    user_email = st.session_state.get("user_email", "default")
     for filename in os.listdir(CHATS_DIR):
         if filename.endswith(".json"):
             file_path = os.path.join(CHATS_DIR, filename)
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    chats.append(data)
+                    if data.get("user", "default") == user_email:
+                        chats.append(data)
             except:
                 pass
     # Sort by Pinned status first, then by most recent
@@ -171,6 +174,112 @@ def get_base64_image(image_path):
 st.set_page_config(page_title="Local AI ChatGPT Clone", page_icon="⚡", layout="wide", initial_sidebar_state="expanded")
 
 # --- INITIALIZE SESSION STATE ---
+if "is_logged_in" not in st.session_state:
+    st.session_state.is_logged_in = False
+    st.session_state.user_email = ""
+
+@st.dialog("Log in or sign up")
+def auth_dialog():
+    st.markdown("""
+        <style>
+            /* Custom Dialog Styling */
+            div[data-testid="stDialog"] div[data-testid="stMarkdownContainer"] p {
+                font-size: 1rem !important;
+            }
+            div[data-testid="stDialog"] button[kind="primary"] {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                border-radius: 20px !important;
+                font-weight: 600 !important;
+                border: none !important;
+            }
+            div[data-testid="stDialog"] button[kind="primary"]:hover {
+                background-color: #E0E0E0 !important;
+            }
+            div[data-testid="stDialog"] button[kind="secondary"] {
+                border-radius: 20px !important;
+                padding: 10px !important;
+            }
+        </style>
+        <div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>
+            You'll get smarter responses and can upload files, images, and more.
+        </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("🇬 Continue with Google", use_container_width=True):
+        st.session_state.is_logged_in = True
+        st.session_state.user_email = "user@google.com"
+        st.rerun()
+    if st.button("🍎 Continue with Apple", use_container_width=True):
+        st.session_state.is_logged_in = True
+        st.session_state.user_email = "user@apple.com"
+        st.rerun()
+    if st.button("📞 Continue with phone", use_container_width=True):
+        st.session_state.is_logged_in = True
+        st.session_state.user_email = "user@phone.com"
+        st.rerun()
+        
+    st.markdown("""
+        <div style="display: flex; align-items: center; text-align: center; margin: 15px 0;">
+            <div style="flex-grow: 1; height: 1px; background-color: #444;"></div>
+            <span style="padding: 0 10px; color: #888; font-size: 12px;">OR</span>
+            <div style="flex-grow: 1; height: 1px; background-color: #444;"></div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    email = st.text_input("Email address", placeholder="Email address", label_visibility="collapsed")
+    if st.button("Continue", use_container_width=True, type="primary"):
+        if email:
+            st.session_state.is_logged_in = True
+            st.session_state.user_email = email
+            st.rerun()
+
+if not st.session_state.is_logged_in:
+    st.markdown("""
+        <style>
+            header {visibility: hidden;}
+            footer {visibility: hidden;}
+            .stApp { background-color: #000000; }
+            .block-container { padding-top: 2rem !important; }
+            
+            /* Top right buttons styling */
+            div[data-testid="column"]:nth-child(2) button {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                border-radius: 20px !important;
+                font-weight: 600 !important;
+                border: none !important;
+            }
+            div[data-testid="column"]:nth-child(3) button {
+                background-color: transparent !important;
+                color: #FFFFFF !important;
+                border-radius: 20px !important;
+                font-weight: 600 !important;
+                border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            }
+            div[data-testid="column"]:nth-child(2) button:hover {
+                background-color: #E0E0E0 !important;
+            }
+            div[data-testid="column"]:nth-child(3) button:hover {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([0.7, 0.12, 0.18])
+    with col2:
+        if st.button("Log in", use_container_width=True):
+            auth_dialog()
+    with col3:
+        if st.button("Sign up for free", use_container_width=True):
+            auth_dialog()
+            
+    st.markdown("<br><br><br><br><br><br>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: white; font-family: Outfit, sans-serif; font-size: 3.5rem; letter-spacing: -1px;'>nick.ai</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #A0A0A0; font-size: 1.2rem;'>Log in or sign up to experience smarter, omnipotent AI.</p>", unsafe_allow_html=True)
+    
+    st.stop()
+
 if "current_chat_id" not in st.session_state:
     st.session_state.current_chat_id = str(uuid.uuid4())
     st.session_state.chat_title = "New chat"
