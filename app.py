@@ -1042,7 +1042,20 @@ with st.sidebar:
     # Smart Logo & Fast Reload Logic (No white screen)
     logo_base64 = get_base64_image("logo.png")
     
-    # Use columns to hide the trigger button in a near-zero width column
+    # CSS to TRULY hide the trigger column so it's not visible on screen
+    st.markdown("""
+        <style>
+            /* Completely suppress the second column in the sidebar header */
+            div[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2) {
+                display: none !important;
+                width: 0 !important;
+                flex: 0 1 0% !important;
+                min-width: 0 !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Use columns to house the trigger button - Column 2 is hidden by CSS above
     logo_col, trigger_col = st.columns([10, 0.01])
     
     with logo_col:
@@ -1059,6 +1072,7 @@ with st.sidebar:
                 </div>
             </div>
         """, unsafe_allow_html=True)
+
         
     with trigger_col:
         # This button is in a 0.01 width column - physically there but invisible
