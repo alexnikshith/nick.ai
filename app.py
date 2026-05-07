@@ -1039,45 +1039,43 @@ st.markdown("""
 
 # --- SIDEBAR UI (ChatGPT Style) ---
 with st.sidebar:
-    # 1. Restore the pixel-perfect HTML Logo (with JS trigger for speed)
+    # Smart Logo & Fast Reload Logic (No white screen)
     logo_base64 = get_base64_image("logo.png")
-    st.markdown(f"""
-        <div class="sidebar-branding" 
-             onclick="Array.from(window.parent.document.querySelectorAll('button')).find(el => el.innerText === '_RELOAD_').click();" 
-             style="cursor: pointer; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="width: 40px; height: 40px;">
-                    <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
-                </div>
-                <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
-            </div>
-        </div>
-        <style>
-            /* Hide the element immediately following the branding (the hidden reload button) */
-            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) {{
-                display: none !important;
-                height: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }}
-        </style>
-    """, unsafe_allow_html=True)
     
-    # 2. Hidden Streamlit button to handle the reload logic
-    if st.button("_RELOAD_"):
-        # 1. Save current chat state
-        if "messages" in st.session_state and st.session_state.messages:
-            save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
+    # Use columns to hide the trigger button in a near-zero width column
+    logo_col, trigger_col = st.columns([10, 0.01])
+    
+    with logo_col:
+        # The pixel-perfect Branding (triggers the hidden button in trigger_col)
+        st.markdown(f"""
+            <div class="sidebar-branding" 
+                 onclick="window.parent.document.querySelectorAll('div[data-testid=\\'column\\']')[1].querySelector('button').click();" 
+                 style="cursor: pointer; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 40px; height: 40px;">
+                        <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
+                    </div>
+                    <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
         
-        # 2. Store settings memory locally
-        save_user_settings()
-        
-        # 3. Reset to home state
-        st.session_state.current_chat_id = str(uuid.uuid4())
-        st.session_state.chat_title = "New chat"
-        st.session_state.messages = []
-        st.query_params.clear()
-        st.rerun()
+    with trigger_col:
+        # This button is in a 0.01 width column - physically there but invisible
+        if st.button(" ", key="logo_reload_trigger"):
+            # 1. Save current chat state
+            if "messages" in st.session_state and st.session_state.messages:
+                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
+            
+            # 2. Store settings memory locally
+            save_user_settings()
+            
+            # 3. Reset to home state (Internal Rerun = Instant)
+            st.session_state.current_chat_id = str(uuid.uuid4())
+            st.session_state.chat_title = "New chat"
+            st.session_state.messages = []
+            st.query_params.clear()
+            st.rerun()
     
     st.markdown('<div class="sidebar-content-spacer"></div>', unsafe_allow_html=True)
     
