@@ -501,11 +501,6 @@ st.markdown("""
         background-color: rgba(255,255,255,0.1) !important;
     }
     
-    /* Hidden trigger button for logo click */
-    div[data-testid="column"]:has(div[title="logo-trigger-hook"]) {
-        display: none !important;
-    }
-    
     /* Specific Override for Red Logout Button */
     div[data-testid="stPopoverBody"] div[data-testid="stElementContainer"]:last-child button {
         background-color: #FF3B30 !important;
@@ -1045,38 +1040,64 @@ st.markdown("""
 # --- SIDEBAR UI (ChatGPT Style) ---
 with st.sidebar:
     # Fixed Header Section
+    # Smart Logo Button (Replaces full-page reload link)
     logo_base64 = get_base64_image("logo.png")
     
-    # 0. Hidden Trigger for logo click (Avoids white flash reload)
-    l_col1, l_col2 = st.columns([0.1, 0.9])
-    with l_col1:
-        st.markdown('<div title="logo-trigger-hook"></div>', unsafe_allow_html=True)
-        if st.button("HIDDEN_LOGO_RELOAD", key="logo_reload_trigger"):
-            # 1. Save current chat state
-            if "messages" in st.session_state and st.session_state.messages:
-                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
-            # 2. Store settings memory locally
-            save_user_settings()
-            # 3. Reset to home state
-            st.session_state.current_chat_id = str(uuid.uuid4())
-            st.session_state.chat_title = "New chat"
-            st.session_state.messages = []
-            st.query_params.clear()
-            st.rerun()
-
+    # Inject CSS to make the first button in the sidebar look like branding
     st.markdown(f"""
-        <div class="sidebar-branding" 
-             onclick="window.parent.document.querySelector('div[title=\\'logo-trigger-hook\\']').parentElement.parentElement.nextElementSibling.querySelector('button').click();"
-             style="cursor: pointer;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="width: 40px; height: 40px;">
-                    <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
-                </div>
-                <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
-            </div>
-        </div>
-        <div class="sidebar-content-spacer"></div>
+        <style>
+            /* TARGET: The first button in the sidebar (Logo) */
+            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) button {{
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                justify-content: flex-start !important;
+                height: auto !important;
+                margin-bottom: 20px !important;
+                margin-top: 10px !important;
+            }}
+            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) button p {{
+                color: white !important;
+                font-size: 1.6rem !important;
+                font-weight: 800 !important;
+                letter-spacing: -0.5px !important;
+                margin: 0 !important;
+            }}
+            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) button::before {{
+                content: "";
+                display: inline-block;
+                width: 40px;
+                height: 40px;
+                background-image: url('data:image/png;base64,{logo_base64}');
+                background-size: cover;
+                border-radius: 8px;
+                margin-right: 15px;
+                flex-shrink: 0;
+            }}
+            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) button:hover {{
+                background: transparent !important;
+                opacity: 0.8;
+            }}
+        </style>
     """, unsafe_allow_html=True)
+    
+    if st.button("nick.ai", key="logo_btn_smart", use_container_width=True):
+        # 1. Save current chat state before refreshing
+        if "messages" in st.session_state and st.session_state.messages:
+            save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
+        
+        # 2. Store settings memory locally
+        save_user_settings()
+        
+        # 3. Reset to home state (Smart Refresh)
+        st.session_state.current_chat_id = str(uuid.uuid4())
+        st.session_state.chat_title = "New chat"
+        st.session_state.messages = []
+        st.query_params.clear()
+        st.rerun()
+    
+    st.markdown('<div class="sidebar-content-spacer"></div>', unsafe_allow_html=True)
     
     # 1. TOP MENU ITEMS
     if st.button("New chat", use_container_width=True):
