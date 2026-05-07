@@ -177,9 +177,21 @@ st.set_page_config(page_title="Local AI ChatGPT Clone", page_icon="⚡", layout=
 if "is_logged_in" not in st.session_state:
     st.session_state.is_logged_in = False
     st.session_state.user_email = ""
+if "unregistered_chat_count" not in st.session_state:
+    st.session_state.unregistered_chat_count = 0
+if "show_limit_dialog" not in st.session_state:
+    st.session_state.show_limit_dialog = False
+
+def check_action_limit():
+    if not st.session_state.is_logged_in:
+        if st.session_state.unregistered_chat_count >= 5:
+            st.session_state.show_limit_dialog = True
+            st.rerun()
+        else:
+            st.session_state.unregistered_chat_count += 1
 
 @st.dialog("Log in or sign up")
-def auth_dialog():
+def auth_dialog(limit_reached=False):
     st.markdown("""
         <style>
             /* Custom Dialog Styling */
@@ -201,22 +213,28 @@ def auth_dialog():
                 padding: 10px !important;
             }
         </style>
-        <div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>
-            You'll get smarter responses and can upload files, images, and more.
-        </div>
     """, unsafe_allow_html=True)
+
+    if limit_reached:
+        st.markdown("<div style='text-align: center; color: #FF4B4B; margin-bottom: 10px; font-weight: bold; font-size: 16px;'>You've reached your free limit!</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 14px;'>Please log in or sign up to use nick.ai endlessly.</div>", unsafe_allow_html=True)
+    else:
+        st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>You'll get smarter responses and can upload files, images, and more.</div>", unsafe_allow_html=True)
 
     if st.button("🇬 Continue with Google", use_container_width=True):
         st.session_state.is_logged_in = True
         st.session_state.user_email = "user@google.com"
+        st.session_state.show_limit_dialog = False
         st.rerun()
     if st.button("🍎 Continue with Apple", use_container_width=True):
         st.session_state.is_logged_in = True
         st.session_state.user_email = "user@apple.com"
+        st.session_state.show_limit_dialog = False
         st.rerun()
     if st.button("📞 Continue with phone", use_container_width=True):
         st.session_state.is_logged_in = True
         st.session_state.user_email = "user@phone.com"
+        st.session_state.show_limit_dialog = False
         st.rerun()
         
     st.markdown("""
@@ -232,53 +250,11 @@ def auth_dialog():
         if email:
             st.session_state.is_logged_in = True
             st.session_state.user_email = email
+            st.session_state.show_limit_dialog = False
             st.rerun()
 
-if not st.session_state.is_logged_in:
-    st.markdown("""
-        <style>
-            header {visibility: hidden;}
-            footer {visibility: hidden;}
-            .stApp { background-color: #000000; }
-            .block-container { padding-top: 2rem !important; }
-            
-            /* Top right buttons styling */
-            div[data-testid="column"]:nth-child(2) button {
-                background-color: #FFFFFF !important;
-                color: #000000 !important;
-                border-radius: 20px !important;
-                font-weight: 600 !important;
-                border: none !important;
-            }
-            div[data-testid="column"]:nth-child(3) button {
-                background-color: transparent !important;
-                color: #FFFFFF !important;
-                border-radius: 20px !important;
-                font-weight: 600 !important;
-                border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            }
-            div[data-testid="column"]:nth-child(2) button:hover {
-                background-color: #E0E0E0 !important;
-            }
-            div[data-testid="column"]:nth-child(3) button:hover {
-                background-color: rgba(255, 255, 255, 0.1) !important;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns([0.7, 0.12, 0.18])
-    with col2:
-        if st.button("Log in", use_container_width=True):
-            auth_dialog()
-    with col3:
-        if st.button("Sign up for free", use_container_width=True):
-            auth_dialog()
-            
-    st.markdown("<br><br><br><br><br><br>", unsafe_allow_html=True)
-    st.markdown("<h1 style='text-align: center; color: white; font-family: Outfit, sans-serif; font-size: 3.5rem; letter-spacing: -1px;'>nick.ai</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #A0A0A0; font-size: 1.2rem;'>Log in or sign up to experience smarter, omnipotent AI.</p>", unsafe_allow_html=True)
-    
-    st.stop()
+if st.session_state.show_limit_dialog:
+    auth_dialog(limit_reached=True)
 
 if "current_chat_id" not in st.session_state:
     st.session_state.current_chat_id = str(uuid.uuid4())
@@ -897,6 +873,7 @@ with st.sidebar:
                 with st.spinner("🎙️ nick.ai is listening..."):
                     voice_text = transcribe_audio(audio_file)
                 if "Error" not in voice_text:
+                    check_action_limit()
                     st.session_state.ai_processing = True
                     st.session_state.audio_counter += 1
                     user_msg = {"role": "user", "content": voice_text}
@@ -927,16 +904,19 @@ with st.sidebar:
         col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("🌦️", help="Weather", use_container_width=True):
+                check_action_limit()
                 st.session_state.messages.append({"role": "user", "content": "Get live weather updates"})
                 st.session_state.ai_processing = True
                 st.rerun()
         with col2:
             if st.button("💹", help="Stocks", use_container_width=True):
+                check_action_limit()
                 st.session_state.messages.append({"role": "user", "content": "Check current stock and crypto prices"})
                 st.session_state.ai_processing = True
                 st.rerun()
         with col3:
             if st.button("📰", help="News", use_container_width=True):
+                check_action_limit()
                 st.session_state.messages.append({"role": "user", "content": "Show top tech news headlines"})
                 st.session_state.ai_processing = True
                 st.rerun()
@@ -1115,30 +1095,65 @@ with st.sidebar:
 st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
 # Top row with Share Popover on the Right
-ui_col1, ui_col2 = st.columns([0.8, 0.2])
-with ui_col2:
-    st.markdown('<div id="main-share-menu">', unsafe_allow_html=True)
-    with st.popover("📤 Share / Options", use_container_width=True):
-        st.subheader("Options")
+if st.session_state.is_logged_in:
+    ui_col1, ui_col2 = st.columns([0.8, 0.2])
+    with ui_col2:
+        st.markdown('<div id="main-share-menu">', unsafe_allow_html=True)
+        with st.popover("📤 Share / Options", use_container_width=True):
+            st.subheader("Options")
+                
+            # 1. RENAME
+            new_title = st.text_input("Rename Chat", value=st.session_state.chat_title, key="rename_input")
+            if st.button("Save Name", use_container_width=True):
+                st.session_state["pending_rename"] = new_title
+                
+            st.markdown("---")
             
-        # 1. RENAME
-        new_title = st.text_input("Rename Chat", value=st.session_state.chat_title, key="rename_input")
-        if st.button("Save Name", use_container_width=True):
-            st.session_state["pending_rename"] = new_title
+            # 2. SHARE
+            st.markdown("**Universal Share Link:**")
+            share_url = f"https://nick-ai.streamlit.app/?share={st.session_state.current_chat_id}"
+            st.code(share_url, language=None)
             
-        st.markdown("---")
-        
-        # 2. SHARE
-        st.markdown("**Universal Share Link:**")
-        share_url = f"https://nick-ai.streamlit.app/?share={st.session_state.current_chat_id}"
-        st.code(share_url, language=None)
-        
-        st.markdown("---")
-        
-        # 3. DELETE
-        if st.button("🗑️ Delete Chat", use_container_width=True, type="secondary"):
-            st.session_state["pending_delete"] = True
-    st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("---")
+            
+            # 3. DELETE
+            if st.button("🗑️ Delete Chat", use_container_width=True, type="secondary"):
+                st.session_state["pending_delete"] = True
+        st.markdown('</div>', unsafe_allow_html=True)
+else:
+    # Display Login/Signup buttons on the top right for unregistered users
+    ui_col1, ui_col2, ui_col3 = st.columns([0.7, 0.12, 0.18])
+    with ui_col2:
+        if st.button("Log in", use_container_width=True, key="top_login"):
+            auth_dialog()
+    with ui_col3:
+        if st.button("Sign up for free", use_container_width=True, key="top_signup"):
+            auth_dialog()
+    # Apply styling just for these top-right buttons
+    st.markdown("""
+        <style>
+            div[data-testid="column"]:nth-child(2) button {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                border-radius: 20px !important;
+                font-weight: 600 !important;
+                border: none !important;
+            }
+            div[data-testid="column"]:nth-child(3) button {
+                background-color: transparent !important;
+                color: #FFFFFF !important;
+                border-radius: 20px !important;
+                font-weight: 600 !important;
+                border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            }
+            div[data-testid="column"]:nth-child(2) button:hover {
+                background-color: #E0E0E0 !important;
+            }
+            div[data-testid="column"]:nth-child(3) button:hover {
+                background-color: rgba(255, 255, 255, 0.1) !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
 
 # Process deferred actions OUTSIDE the popover
 if st.session_state.get("pending_rename"):
@@ -1260,6 +1275,8 @@ for msg in st.session_state.messages:
 
 # Native chat input - button sits inside the bar at the right edge
 if prompt := st.chat_input("Ask anything..."):
+    check_action_limit()
+
     # Create message and attach images from file_input if any
     user_msg = {"role": "user", "content": prompt}
     current_file_key = f"file_input_{st.session_state.uploader_id}"
