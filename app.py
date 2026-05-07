@@ -425,38 +425,42 @@ st.markdown("""
         background-color: #FF1A1A !important;
     }
     
-    /* Top Login Button Pill */
-    div[data-testid="column"]:has(div[title="login-hook"]) button {
+    /* Top Login Button Pill - Using kind="primary" specifically for this button */
+    [data-testid="stMain"] [data-testid="column"] button[kind="primary"] {
         background-color: white !important;
         border-radius: 50px !important;
         border: 1px solid white !important;
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
+        height: auto !important;
+        min-height: 45px !important;
     }
-    div[data-testid="column"]:has(div[title="login-hook"]) button p {
+    [data-testid="stMain"] [data-testid="column"] button[kind="primary"] p {
         color: black !important;
         font-weight: 600 !important;
         font-size: 16px !important;
     }
-    div[data-testid="column"]:has(div[title="login-hook"]) button:hover {
+    [data-testid="stMain"] [data-testid="column"] button[kind="primary"]:hover {
         background-color: #E0E0E0 !important;
         border-color: #E0E0E0 !important;
     }
     
-    /* Top Signup Button Pill */
-    div[data-testid="column"]:has(div[title="signup-hook"]) button {
+    /* Top Signup Button Pill - Using kind="secondary" specifically for this button */
+    [data-testid="stMain"] [data-testid="column"] button[kind="secondary"] {
         background-color: transparent !important;
         border-radius: 50px !important;
         border: 1px solid rgba(255,255,255,0.4) !important;
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
+        height: auto !important;
+        min-height: 45px !important;
     }
-    div[data-testid="column"]:has(div[title="signup-hook"]) button p {
+    [data-testid="stMain"] [data-testid="column"] button[kind="secondary"] p {
         color: white !important;
         font-weight: 600 !important;
         font-size: 16px !important;
     }
-    div[data-testid="column"]:has(div[title="signup-hook"]) button:hover {
+    [data-testid="stMain"] [data-testid="column"] button[kind="secondary"]:hover {
         background-color: rgba(255,255,255,0.1) !important;
     }
     
@@ -1295,13 +1299,11 @@ else:
     # Display neat pixel-perfect Login/Signup pills for unregistered users
     ui_col1, ui_col2, ui_col3 = st.columns([0.65, 0.15, 0.20])
     with ui_col2:
-        st.markdown('<div title="login-hook" style="display:none;"></div>', unsafe_allow_html=True)
-        if st.button("Log in", use_container_width=True):
+        if st.button("Log in", use_container_width=True, type="primary"):
             st.session_state.show_auth_dialog_manual = True
             st.rerun()
     with ui_col3:
-        st.markdown('<div title="signup-hook" style="display:none;"></div>', unsafe_allow_html=True)
-        if st.button("Sign up for free", use_container_width=True):
+        if st.button("Sign up for free", use_container_width=True, type="secondary"):
             st.session_state.show_auth_dialog_manual = True
             st.rerun()
 
