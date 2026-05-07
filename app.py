@@ -379,20 +379,6 @@ if "user_username" not in st.session_state:
     st.session_state.user_username = "nikshithgurram2006"
 
 # --- HANDLE SHARED LINKS & AUTH ACTIONS ---
-if "logout" in st.query_params:
-    st.session_state.is_logged_in = False
-    st.session_state.user_email = ""
-    st.session_state.user_display_name = "Nikshith Gurram"
-    st.session_state.user_username = "nikshithgurram2006"
-    st.session_state.show_auth_dialog_manual = True
-    del st.query_params["logout"]
-    st.rerun()
-
-if "login" in st.query_params:
-    st.session_state.show_auth_dialog_manual = True
-    del st.query_params["login"]
-    st.rerun()
-
 if "share" in st.query_params:
     share_id = st.query_params["share"]
     shared_data = load_chat(share_id)
@@ -426,22 +412,44 @@ st.markdown("""
         background-color: #E0E0E0 !important;
     }
     
-    /* Logout Button Link */
-    a.custom-logout-btn {
-        display: block;
-        width: 100%;
-        text-align: center;
-        background-color: #FF3B30;
+    /* Logout Button (Last element in popover) */
+    div[data-testid="stPopoverBody"] div[data-testid="stElementContainer"]:last-child button {
+        background-color: #FF3B30 !important;
         color: #FFFFFF !important;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        margin-top: 15px;
-        transition: background-color 0.2s;
+        border: none !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        margin-top: 5px !important;
     }
-    a.custom-logout-btn:hover {
-        background-color: #FF1A1A;
+    div[data-testid="stPopoverBody"] div[data-testid="stElementContainer"]:last-child button:hover {
+        background-color: #FF1A1A !important;
+    }
+    
+    /* Top Login Button Pill */
+    div[data-testid="column"]:nth-child(2) button {
+        background-color: white !important;
+        color: black !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        border: 1px solid white !important;
+    }
+    div[data-testid="column"]:nth-child(2) button:hover {
+        background-color: #E0E0E0 !important;
+        border-color: #E0E0E0 !important;
+    }
+    
+    /* Top Signup Button Pill */
+    div[data-testid="column"]:nth-child(3) button {
+        background-color: transparent !important;
+        color: white !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        border: 1px solid rgba(255,255,255,0.4) !important;
+    }
+    div[data-testid="column"]:nth-child(3) button:hover {
+        background-color: rgba(255,255,255,0.1) !important;
     }
     
     /* Main container styling */
@@ -1238,7 +1246,13 @@ with st.sidebar:
                     st.rerun()
             
             # Log Out Button
-            st.markdown('<a href="/?logout=true" target="_self" class="custom-logout-btn">Log out</a>', unsafe_allow_html=True)
+            if st.button("Log out", use_container_width=True):
+                st.session_state.is_logged_in = False
+                st.session_state.user_email = ""
+                st.session_state.user_display_name = "Nikshith Gurram"
+                st.session_state.user_username = "nikshithgurram2006"
+                st.session_state.show_auth_dialog_manual = True
+                st.rerun()
 
 # --- MAIN CHAT UI ---
 st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
@@ -1271,47 +1285,15 @@ if st.session_state.is_logged_in:
         st.markdown('</div>', unsafe_allow_html=True)
 else:
     # Display neat pixel-perfect Login/Signup pills for unregistered users
-    ui_col1, ui_col2 = st.columns([0.65, 0.35])
+    ui_col1, ui_col2, ui_col3 = st.columns([0.65, 0.15, 0.20])
     with ui_col2:
-        st.markdown("""
-            <style>
-                a.top-login-pill {
-                    background-color: white !important;
-                    color: black !important;
-                    border-radius: 50px !important;
-                    padding: 10px 28px !important;
-                    font-weight: 600 !important;
-                    text-decoration: none !important;
-                    font-size: 16px !important;
-                    border: 1px solid white !important;
-                    transition: background-color 0.2s !important;
-                    display: inline-block !important;
-                }
-                a.top-login-pill:hover {
-                    background-color: #E0E0E0 !important;
-                    border-color: #E0E0E0 !important;
-                }
-                a.top-signup-pill {
-                    background-color: transparent !important;
-                    color: white !important;
-                    border-radius: 50px !important;
-                    padding: 10px 28px !important;
-                    font-weight: 600 !important;
-                    text-decoration: none !important;
-                    font-size: 16px !important;
-                    border: 1px solid rgba(255,255,255,0.4) !important;
-                    transition: background-color 0.2s !important;
-                    display: inline-block !important;
-                }
-                a.top-signup-pill:hover {
-                    background-color: rgba(255,255,255,0.1) !important;
-                }
-            </style>
-            <div style="display: flex; gap: 14px; justify-content: flex-end; align-items: center;">
-                <a href="/?login=true" target="_self" class="top-login-pill">Log in</a>
-                <a href="/?login=true" target="_self" class="top-signup-pill">Sign up for free</a>
-            </div>
-        """, unsafe_allow_html=True)
+        if st.button("Log in", use_container_width=True):
+            st.session_state.show_auth_dialog_manual = True
+            st.rerun()
+    with ui_col3:
+        if st.button("Sign up for free", use_container_width=True):
+            st.session_state.show_auth_dialog_manual = True
+            st.rerun()
 
 # Process deferred actions OUTSIDE the popover
 if st.session_state.get("pending_rename"):
