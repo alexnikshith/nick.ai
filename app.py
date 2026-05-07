@@ -1039,63 +1039,38 @@ st.markdown("""
 
 # --- SIDEBAR UI (ChatGPT Style) ---
 with st.sidebar:
-    # Fixed Header Section
-    # Smart Logo Button (Replaces full-page reload link)
+    # 1. Restore the pixel-perfect HTML Logo (with JS trigger for speed)
     logo_base64 = get_base64_image("logo.png")
-    
-    # Inject CSS to make the first button in the sidebar look like branding
     st.markdown(f"""
-        <style>
-            /* TARGET: The first button in the sidebar (Logo) */
-            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) button {{
-                background: transparent !important;
-                border: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                justify-content: flex-start !important;
-                height: auto !important;
-                margin-bottom: 20px !important;
-                margin-top: 10px !important;
-            }}
-            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) button p {{
-                color: white !important;
-                font-size: 1.6rem !important;
-                font-weight: 800 !important;
-                letter-spacing: -0.5px !important;
-                margin: 0 !important;
-            }}
-            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) button::before {{
-                content: "";
-                display: inline-block;
-                width: 40px;
-                height: 40px;
-                background-image: url('data:image/png;base64,{logo_base64}');
-                background-size: cover;
-                border-radius: 8px;
-                margin-right: 15px;
-                flex-shrink: 0;
-            }}
-            div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"]:nth-child(2) button:hover {{
-                background: transparent !important;
-                opacity: 0.8;
-            }}
-        </style>
+        <div class="sidebar-branding" 
+             onclick="Array.from(window.parent.document.querySelectorAll('button')).find(el => el.innerText === 'LOGO_RELOAD_HIDDEN').click();" 
+             style="cursor: pointer; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 40px; height: 40px;">
+                    <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
+                </div>
+                <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
+            </div>
+        </div>
     """, unsafe_allow_html=True)
     
-    if st.button("nick.ai", key="logo_btn_smart", use_container_width=True):
-        # 1. Save current chat state before refreshing
+    # 2. Hidden Streamlit button to handle the reload logic without a white screen flash
+    st.markdown('<div style="display:none;">', unsafe_allow_html=True)
+    if st.button("LOGO_RELOAD_HIDDEN"):
+        # 1. Save current chat state
         if "messages" in st.session_state and st.session_state.messages:
             save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
         
         # 2. Store settings memory locally
         save_user_settings()
         
-        # 3. Reset to home state (Smart Refresh)
+        # 3. Reset to home state (Internal Rerun = No white screen)
         st.session_state.current_chat_id = str(uuid.uuid4())
         st.session_state.chat_title = "New chat"
         st.session_state.messages = []
         st.query_params.clear()
         st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="sidebar-content-spacer"></div>', unsafe_allow_html=True)
     
