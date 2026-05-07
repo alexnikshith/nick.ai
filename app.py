@@ -181,6 +181,8 @@ if "unregistered_chat_count" not in st.session_state:
     st.session_state.unregistered_chat_count = 0
 if "show_limit_dialog" not in st.session_state:
     st.session_state.show_limit_dialog = False
+if "show_auth_dialog_manual" not in st.session_state:
+    st.session_state.show_auth_dialog_manual = False
 
 def check_action_limit():
     if not st.session_state.is_logged_in:
@@ -338,6 +340,8 @@ def auth_dialog(limit_reached=False):
 
 if st.session_state.show_limit_dialog:
     auth_dialog(limit_reached=True)
+if st.session_state.show_auth_dialog_manual:
+    auth_dialog(limit_reached=False)
 
 if "current_chat_id" not in st.session_state:
     st.session_state.current_chat_id = str(uuid.uuid4())
@@ -1146,40 +1150,41 @@ with st.sidebar:
             st.markdown("### Guest User")
             st.caption("Log in or sign up to save your preferences and customize your profile.")
             if st.button("Log in / Sign up", use_container_width=True, type="primary", key="sidebar_login"):
-                auth_dialog()
+                st.session_state.show_auth_dialog_manual = True
+                st.rerun()
         else:
             st.markdown("### Edit profile")
-        
-        # Avatar Section
-        col_a, col_b, col_c = st.columns([1, 2, 1])
-        with col_b:
-            st.markdown(f"""
-                <div style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
-                    <div style="width: 120px; height: 120px; background-color: #7B61FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; font-weight: 700;">
-                        {st.session_state.user_display_name[:1]}{st.session_state.user_display_name.split()[-1][:1] if ' ' in st.session_state.user_display_name else ''}
+            
+            # Avatar Section
+            col_a, col_b, col_c = st.columns([1, 2, 1])
+            with col_b:
+                st.markdown(f"""
+                    <div style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
+                        <div style="width: 120px; height: 120px; background-color: #7B61FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; font-weight: 700;">
+                            {st.session_state.user_display_name[:1]}{st.session_state.user_display_name.split()[-1][:1] if ' ' in st.session_state.user_display_name else ''}
+                        </div>
                     </div>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # Fields
-        new_display_name = st.text_input("Display name", value=st.session_state.user_display_name)
-        new_username = st.text_input("Username", value=st.session_state.user_username)
-        
-        st.caption("Your profile helps people recognize you in group chats.")
-        
-        # Actions
-        btn_col1, btn_col2 = st.columns(2)
-        with btn_col1:
-            if st.button("Cancel", use_container_width=True):
-                st.rerun()
-        with btn_col2:
-            if st.button("Save", use_container_width=True, type="primary"):
-                st.session_state.user_display_name = new_display_name
-                st.session_state.user_username = new_username
-                st.toast("Profile updated!")
-                st.rerun()
+                """, unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # Fields
+            new_display_name = st.text_input("Display name", value=st.session_state.user_display_name)
+            new_username = st.text_input("Username", value=st.session_state.user_username)
+            
+            st.caption("Your profile helps people recognize you in group chats.")
+            
+            # Actions
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                if st.button("Cancel", use_container_width=True):
+                    st.rerun()
+            with btn_col2:
+                if st.button("Save", use_container_width=True, type="primary"):
+                    st.session_state.user_display_name = new_display_name
+                    st.session_state.user_username = new_username
+                    st.toast("Profile updated!")
+                    st.rerun()
 
 # --- MAIN CHAT UI ---
 st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
@@ -1215,10 +1220,12 @@ else:
     ui_col1, ui_col2, ui_col3 = st.columns([0.7, 0.12, 0.18])
     with ui_col2:
         if st.button("Log in", use_container_width=True, key="top_login"):
-            auth_dialog()
+            st.session_state.show_auth_dialog_manual = True
+            st.rerun()
     with ui_col3:
         if st.button("Sign up for free", use_container_width=True, key="top_signup"):
-            auth_dialog()
+            st.session_state.show_auth_dialog_manual = True
+            st.rerun()
     # Apply styling just for these top-right buttons
     st.markdown("""
         <style>
