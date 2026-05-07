@@ -428,13 +428,15 @@ st.markdown("""
     /* Top Login Button Pill */
     div[data-testid="column"]:has(div[title="login-hook"]) button {
         background-color: white !important;
-        color: black !important;
         border-radius: 50px !important;
-        font-weight: 600 !important;
-        font-size: 16px !important;
         border: 1px solid white !important;
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
+    }
+    div[data-testid="column"]:has(div[title="login-hook"]) button p {
+        color: black !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
     }
     div[data-testid="column"]:has(div[title="login-hook"]) button:hover {
         background-color: #E0E0E0 !important;
@@ -444,13 +446,15 @@ st.markdown("""
     /* Top Signup Button Pill */
     div[data-testid="column"]:has(div[title="signup-hook"]) button {
         background-color: transparent !important;
-        color: white !important;
         border-radius: 50px !important;
-        font-weight: 600 !important;
-        font-size: 16px !important;
         border: 1px solid rgba(255,255,255,0.4) !important;
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
+    }
+    div[data-testid="column"]:has(div[title="signup-hook"]) button p {
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
     }
     div[data-testid="column"]:has(div[title="signup-hook"]) button:hover {
         background-color: rgba(255,255,255,0.1) !important;
