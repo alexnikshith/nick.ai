@@ -214,6 +214,33 @@ def auth_dialog(limit_reached=False):
                 border-radius: 20px !important;
                 padding: 10px !important;
             }
+            /* Profile Popover Save Button */
+            div[data-testid="stPopoverBody"] div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
+                border: none !important;
+            }
+            div[data-testid="stPopoverBody"] div[data-testid="stHorizontalBlock"] button[kind="primary"]:hover {
+                background-color: #E0E0E0 !important;
+            }
+            /* Logout Button Link */
+            a.custom-logout-btn {
+                display: block;
+                width: 100%;
+                text-align: center;
+                background-color: #FF3B30;
+                color: #FFFFFF !important;
+                padding: 0.5rem 1rem;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                margin-top: 15px;
+                transition: background-color 0.2s;
+            }
+            a.custom-logout-btn:hover {
+                background-color: #FF1A1A;
+            }
         </style>
     """, unsafe_allow_html=True)
 
@@ -376,7 +403,16 @@ if "user_display_name" not in st.session_state:
 if "user_username" not in st.session_state:
     st.session_state.user_username = "nikshithgurram2006"
 
-# --- HANDLE SHARED LINKS ---
+# --- HANDLE SHARED LINKS & LOGOUT ---
+if "logout" in st.query_params:
+    st.session_state.is_logged_in = False
+    st.session_state.user_email = ""
+    st.session_state.user_display_name = "Nikshith Gurram"
+    st.session_state.user_username = "nikshithgurram2006"
+    st.session_state.show_auth_dialog_manual = True
+    del st.query_params["logout"]
+    st.rerun()
+
 if "share" in st.query_params:
     share_id = st.query_params["share"]
     shared_data = load_chat(share_id)
@@ -1185,6 +1221,9 @@ with st.sidebar:
                     st.session_state.user_username = new_username
                     st.toast("Profile updated!")
                     st.rerun()
+            
+            # Log Out Button
+            st.markdown('<a href="/?logout=true" target="_self" class="custom-logout-btn">Log out</a>', unsafe_allow_html=True)
 
 # --- MAIN CHAT UI ---
 st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
