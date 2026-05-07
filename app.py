@@ -416,22 +416,7 @@ if "show_limit_dialog" not in st.session_state:
 if "show_auth_dialog_manual" not in st.session_state:
     st.session_state.show_auth_dialog_manual = False
 
-# --- HANDLE SHARED LINKS & RELOAD ACTIONS ---
-if "reload" in st.query_params:
-    # 1. Save current chat state
-    if "messages" in st.session_state and st.session_state.messages:
-        save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
-    
-    # 2. Store settings memory locally
-    save_user_settings()
-    
-    # 3. Reset to home state
-    st.session_state.current_chat_id = str(uuid.uuid4())
-    st.session_state.chat_title = "New chat"
-    st.session_state.messages = []
-    st.query_params.clear()
-    st.rerun()
-
+# --- HANDLE SHARED LINKS ---
 if "share" in st.query_params:
     share_id = st.query_params["share"]
     shared_data = load_chat(share_id)
@@ -514,6 +499,11 @@ st.markdown("""
     }
     button[kind="secondary"]:hover {
         background-color: rgba(255,255,255,0.1) !important;
+    }
+    
+    /* Hidden trigger button for logo click */
+    div[data-testid="column"]:has(div[title="logo-trigger-hook"]) {
+        display: none !important;
     }
     
     /* Specific Override for Red Logout Button */
@@ -1056,17 +1046,35 @@ st.markdown("""
 with st.sidebar:
     # Fixed Header Section
     logo_base64 = get_base64_image("logo.png")
+    
+    # 0. Hidden Trigger for logo click (Avoids white flash reload)
+    l_col1, l_col2 = st.columns([0.1, 0.9])
+    with l_col1:
+        st.markdown('<div title="logo-trigger-hook"></div>', unsafe_allow_html=True)
+        if st.button("HIDDEN_LOGO_RELOAD", key="logo_reload_trigger"):
+            # 1. Save current chat state
+            if "messages" in st.session_state and st.session_state.messages:
+                save_chat(st.session_state.current_chat_id, st.session_state.chat_title, st.session_state.messages)
+            # 2. Store settings memory locally
+            save_user_settings()
+            # 3. Reset to home state
+            st.session_state.current_chat_id = str(uuid.uuid4())
+            st.session_state.chat_title = "New chat"
+            st.session_state.messages = []
+            st.query_params.clear()
+            st.rerun()
+
     st.markdown(f"""
-        <a href="/?reload=true" target="_self" style="text-decoration: none;">
-            <div class="sidebar-branding">
-                <div style="display: flex; align-items: center; gap: 15px; cursor: pointer;">
-                    <div style="width: 40px; height: 40px;">
-                        <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
-                    </div>
-                    <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
+        <div class="sidebar-branding" 
+             onclick="window.parent.document.querySelector('div[title=\\'logo-trigger-hook\\']').parentElement.parentElement.nextElementSibling.querySelector('button').click();"
+             style="cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 40px; height: 40px;">
+                    <img src="data:image/png;base64,{logo_base64}" width="40" style="border-radius: 8px;">
                 </div>
+                <div style="color: white; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">nick.ai</div>
             </div>
-        </a>
+        </div>
         <div class="sidebar-content-spacer"></div>
     """, unsafe_allow_html=True)
     
