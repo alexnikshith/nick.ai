@@ -215,43 +215,92 @@ def auth_dialog(limit_reached=False):
         </style>
     """, unsafe_allow_html=True)
 
-    if limit_reached:
-        st.markdown("<div style='text-align: center; color: #FF4B4B; margin-bottom: 10px; font-weight: bold; font-size: 16px;'>You've reached your free limit!</div>", unsafe_allow_html=True)
-        st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 14px;'>Please log in or sign up to use nick.ai endlessly.</div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>You'll get smarter responses and can upload files, images, and more.</div>", unsafe_allow_html=True)
+    if "auth_step" not in st.session_state:
+        st.session_state.auth_step = "select"
+        st.session_state.auth_email = ""
 
-    if st.button("🇬 Continue with Google", use_container_width=True):
-        st.session_state.is_logged_in = True
-        st.session_state.user_email = "user@google.com"
-        st.session_state.show_limit_dialog = False
-        st.rerun()
-    if st.button("🍎 Continue with Apple", use_container_width=True):
-        st.session_state.is_logged_in = True
-        st.session_state.user_email = "user@apple.com"
-        st.session_state.show_limit_dialog = False
-        st.rerun()
-    if st.button("📞 Continue with phone", use_container_width=True):
-        st.session_state.is_logged_in = True
-        st.session_state.user_email = "user@phone.com"
-        st.session_state.show_limit_dialog = False
-        st.rerun()
-        
-    st.markdown("""
-        <div style="display: flex; align-items: center; text-align: center; margin: 15px 0;">
-            <div style="flex-grow: 1; height: 1px; background-color: #444;"></div>
-            <span style="padding: 0 10px; color: #888; font-size: 12px;">OR</span>
-            <div style="flex-grow: 1; height: 1px; background-color: #444;"></div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    email = st.text_input("Email address", placeholder="Email address", label_visibility="collapsed")
-    if st.button("Continue", use_container_width=True, type="primary"):
-        if email:
-            st.session_state.is_logged_in = True
-            st.session_state.user_email = email
-            st.session_state.show_limit_dialog = False
+    if st.session_state.auth_step == "select":
+        if limit_reached:
+            st.markdown("<div style='text-align: center; color: #FF4B4B; margin-bottom: 10px; font-weight: bold; font-size: 16px;'>You've reached your free limit!</div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 14px;'>Please log in or sign up to use nick.ai endlessly.</div>", unsafe_allow_html=True)
+        else:
+            st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>You'll get smarter responses and can upload files, images, and more.</div>", unsafe_allow_html=True)
+
+        if st.button("🇬 Continue with Google", use_container_width=True):
+            st.session_state.auth_provider = "Google"
+            st.session_state.auth_step = "oauth_sim"
             st.rerun()
+        if st.button("🍎 Continue with Apple", use_container_width=True):
+            st.session_state.auth_provider = "Apple"
+            st.session_state.auth_step = "oauth_sim"
+            st.rerun()
+        if st.button("📞 Continue with phone", use_container_width=True):
+            st.session_state.auth_provider = "Phone"
+            st.session_state.auth_step = "oauth_sim"
+            st.rerun()
+            
+        st.markdown("""
+            <div style="display: flex; align-items: center; text-align: center; margin: 15px 0;">
+                <div style="flex-grow: 1; height: 1px; background-color: #444;"></div>
+                <span style="padding: 0 10px; color: #888; font-size: 12px;">OR</span>
+                <div style="flex-grow: 1; height: 1px; background-color: #444;"></div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        email = st.text_input("Email address", placeholder="Email address", label_visibility="collapsed")
+        if st.button("Continue", use_container_width=True, type="primary"):
+            if email and "@" in email:
+                st.session_state.auth_email = email
+                st.session_state.auth_step = "otp"
+                st.rerun()
+            else:
+                st.error("Please enter a valid email address.")
+
+    elif st.session_state.auth_step == "oauth_sim":
+        st.markdown(f"#### Connecting to {st.session_state.auth_provider}...")
+        progress_text = "Authenticating and verifying credentials..."
+        my_bar = st.progress(0, text=progress_text)
+        import time
+        for percent_complete in range(100):
+            time.sleep(0.015)
+            my_bar.progress(percent_complete + 1, text=progress_text)
+        time.sleep(0.5)
+        st.success("Successfully verified!")
+        time.sleep(0.5)
+        
+        st.session_state.is_logged_in = True
+        st.session_state.user_email = f"user@{st.session_state.auth_provider.lower()}.com"
+        st.session_state.user_display_name = f"{st.session_state.auth_provider} User"
+        st.session_state.show_limit_dialog = False
+        st.session_state.auth_step = "select"
+        st.rerun()
+
+    elif st.session_state.auth_step == "otp":
+        st.markdown(f"#### Verify your email")
+        st.markdown(f"We sent a 6-digit code to **{st.session_state.auth_email}**.")
+        otp = st.text_input("Enter code", placeholder="123456", max_chars=6)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("← Back", use_container_width=True):
+                st.session_state.auth_step = "select"
+                st.rerun()
+        with col2:
+            if st.button("Verify & Continue", type="primary", use_container_width=True):
+                if len(otp) == 6 and otp.isdigit():
+                    with st.spinner("Verifying code..."):
+                        import time
+                        time.sleep(1.5)
+                    st.success("Email verified!")
+                    time.sleep(0.5)
+                    st.session_state.is_logged_in = True
+                    st.session_state.user_email = st.session_state.auth_email
+                    st.session_state.user_display_name = st.session_state.auth_email.split('@')[0].capitalize()
+                    st.session_state.show_limit_dialog = False
+                    st.session_state.auth_step = "select"
+                    st.rerun()
+                else:
+                    st.error("Invalid code. Please enter any 6 digits.")
 
 if st.session_state.show_limit_dialog:
     auth_dialog(limit_reached=True)
@@ -1057,8 +1106,15 @@ with st.sidebar:
 
     # User Profile at the bottom (Interactive)
     st.markdown("---")
-    with st.popover(f"👤 {st.session_state.user_display_name}", use_container_width=True):
-        st.markdown("### Edit profile")
+    display_name = st.session_state.user_display_name if st.session_state.is_logged_in else "Guest"
+    with st.popover(f"👤 {display_name}", use_container_width=True):
+        if not st.session_state.is_logged_in:
+            st.markdown("### Guest User")
+            st.caption("Log in or sign up to save your preferences and customize your profile.")
+            if st.button("Log in / Sign up", use_container_width=True, type="primary", key="sidebar_login"):
+                auth_dialog()
+        else:
+            st.markdown("### Edit profile")
         
         # Avatar Section
         col_a, col_b, col_c = st.columns([1, 2, 1])
