@@ -1230,7 +1230,8 @@ if st.session_state.get('ai_processing', False):
         current_file_key = f"file_input_{st.session_state.uploader_id - 1}" # Look at previous key
         if current_file_key in st.session_state and st.session_state[current_file_key]:
             for file in st.session_state[current_file_key]:
-                if file.name.endswith('.pdf'):
+                try:
+                    if file.name.endswith('.pdf'):
                         pdf_reader = PyPDF2.PdfReader(file)
                         text = "".join(page.extract_text() for page in pdf_reader.pages)
                         extra_system_content += f"\n\nPDF Content ('{file.name}'):\n{text[:2000]}"
