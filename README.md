@@ -1,6 +1,6 @@
 # nick.ai — The Ultimate Local AI Assistant
 ## live link
-https://nick-ai.streamlit.app/.
+https://nick-ai.streamlit.app/
 
 **nick.ai** is a premium, high-performance AI platform built for total privacy and power. Unlike ChatGPT or Gemini, nick.ai runs **100% locally** on your hardware, ensuring your data never leaves your machine.
 
