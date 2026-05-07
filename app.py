@@ -196,23 +196,9 @@ def check_action_limit():
 def auth_dialog(limit_reached=False):
     st.markdown("""
         <style>
-            /* Custom Dialog Styling */
+            /* Additional Dialog Specific Fine-tuning */
             div[data-testid="stDialog"] div[data-testid="stMarkdownContainer"] p {
                 font-size: 1rem !important;
-            }
-            div[data-testid="stDialog"] button[kind="primary"] {
-                background-color: #FFFFFF !important;
-                color: #000000 !important;
-                border-radius: 20px !important;
-                font-weight: 600 !important;
-                border: none !important;
-            }
-            div[data-testid="stDialog"] button[kind="primary"]:hover {
-                background-color: #E0E0E0 !important;
-            }
-            div[data-testid="stDialog"] button[kind="secondary"] {
-                border-radius: 20px !important;
-                padding: 10px !important;
             }
         </style>
     """, unsafe_allow_html=True)
@@ -228,15 +214,15 @@ def auth_dialog(limit_reached=False):
         else:
             st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>You'll get smarter responses and can upload files, images, and more.</div>", unsafe_allow_html=True)
 
-        if st.button("🇬 Continue with Google", use_container_width=True):
+        if st.button("🇬 Continue with Google", use_container_width=True, type="primary"):
             st.session_state.auth_provider = "Google"
             st.session_state.auth_step = "oauth_account"
             st.rerun()
-        if st.button("🍎 Continue with Apple", use_container_width=True):
+        if st.button("🍎 Continue with Apple", use_container_width=True, type="primary"):
             st.session_state.auth_provider = "Apple"
             st.session_state.auth_step = "oauth_account"
             st.rerun()
-        if st.button("📞 Continue with phone", use_container_width=True):
+        if st.button("📞 Continue with phone", use_container_width=True, type="primary"):
             st.session_state.auth_provider = "Phone"
             st.session_state.auth_step = "oauth_account"
             st.rerun()
@@ -263,11 +249,11 @@ def auth_dialog(limit_reached=False):
         st.markdown(f"<p style='color: #A0A0A0; font-size: 14px;'>Choose an account to continue to nick.ai</p>", unsafe_allow_html=True)
         
         # Simulating account picker
-        if st.button("👤 Nikshith Gurram (nikshithgurram2006@gmail.com)", use_container_width=True):
+        if st.button("👤 Nikshith Gurram (nikshithgurram2006@gmail.com)", use_container_width=True, type="primary"):
             st.session_state.auth_email = "nikshithgurram2006@gmail.com"
             st.session_state.auth_step = "oauth_confirm"
             st.rerun()
-        if st.button("👤 Admin_Fed (fed.nexus@gmail.com)", use_container_width=True):
+        if st.button("👤 Admin_Fed (fed.nexus@gmail.com)", use_container_width=True, type="primary"):
             st.session_state.auth_email = "fed.nexus@gmail.com"
             st.session_state.auth_step = "oauth_confirm"
             st.rerun()
