@@ -378,7 +378,7 @@ if "user_display_name" not in st.session_state:
 if "user_username" not in st.session_state:
     st.session_state.user_username = "nikshithgurram2006"
 
-# --- HANDLE SHARED LINKS & LOGOUT ---
+# --- HANDLE SHARED LINKS & AUTH ACTIONS ---
 if "logout" in st.query_params:
     st.session_state.is_logged_in = False
     st.session_state.user_email = ""
@@ -386,6 +386,11 @@ if "logout" in st.query_params:
     st.session_state.user_username = "nikshithgurram2006"
     st.session_state.show_auth_dialog_manual = True
     del st.query_params["logout"]
+    st.rerun()
+
+if "login" in st.query_params:
+    st.session_state.show_auth_dialog_manual = True
+    del st.query_params["login"]
     st.rerun()
 
 if "share" in st.query_params:
@@ -1080,27 +1085,32 @@ with st.sidebar:
     
     # 2. RECENTS (Chat History)
     st.markdown("### Recents")
-    all_chats = get_all_chats()
     
-    # Filter by project
-    if st.session_state.current_project != "All":
-        all_chats = [c for c in all_chats if c.get('project', 'General') == st.session_state.current_project]
-    
-    # Filter by search query
-    if st.session_state.search_query:
-        all_chats = [c for c in all_chats if st.session_state.search_query.lower() in c.get('title', '').lower()]
-    
-    # Sort by Pinned status first, then by date
-    all_chats.sort(key=lambda x: (x.get('pinned', False), x.get('updated_at', '')), reverse=True)
-    
-    # Pagination Logic
-    if "chats_limit" not in st.session_state:
-        st.session_state.chats_limit = 10
-    
-    visible_chats = all_chats[:st.session_state.chats_limit]
-    
-    if not all_chats:
-        st.caption("No previous chats.")
+    if not st.session_state.is_logged_in:
+        st.caption("Sign up to save your chat history.")
+        visible_chats = []
+    else:
+        all_chats = get_all_chats()
+        
+        # Filter by project
+        if st.session_state.current_project != "All":
+            all_chats = [c for c in all_chats if c.get('project', 'General') == st.session_state.current_project]
+        
+        # Filter by search query
+        if st.session_state.search_query:
+            all_chats = [c for c in all_chats if st.session_state.search_query.lower() in c.get('title', '').lower()]
+        
+        # Sort by Pinned status first, then by date
+        all_chats.sort(key=lambda x: (x.get('pinned', False), x.get('updated_at', '')), reverse=True)
+        
+        # Pagination Logic
+        if "chats_limit" not in st.session_state:
+            st.session_state.chats_limit = 10
+        
+        visible_chats = all_chats[:st.session_state.chats_limit]
+        
+        if not all_chats:
+            st.caption("No previous chats.")
         
     for chat in visible_chats:
         is_pinned = chat.get('pinned', False)
@@ -1259,41 +1269,15 @@ if st.session_state.is_logged_in:
                 st.session_state["pending_delete"] = True
         st.markdown('</div>', unsafe_allow_html=True)
 else:
-    # Display Login/Signup buttons on the top right for unregistered users
-    ui_col1, ui_col2, ui_col3 = st.columns([0.7, 0.12, 0.18])
+    # Display neat pixel-perfect Login/Signup pills for unregistered users
+    ui_col1, ui_col2 = st.columns([0.65, 0.35])
     with ui_col2:
-        if st.button("Log in", use_container_width=True, key="top_login"):
-            st.session_state.show_auth_dialog_manual = True
-            st.rerun()
-    with ui_col3:
-        if st.button("Sign up for free", use_container_width=True, key="top_signup"):
-            st.session_state.show_auth_dialog_manual = True
-            st.rerun()
-    # Apply styling just for these top-right buttons
-    st.markdown("""
-        <style>
-            div[data-testid="column"]:nth-child(2) button {
-                background-color: #FFFFFF !important;
-                color: #000000 !important;
-                border-radius: 20px !important;
-                font-weight: 600 !important;
-                border: none !important;
-            }
-            div[data-testid="column"]:nth-child(3) button {
-                background-color: transparent !important;
-                color: #FFFFFF !important;
-                border-radius: 20px !important;
-                font-weight: 600 !important;
-                border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            }
-            div[data-testid="column"]:nth-child(2) button:hover {
-                background-color: #E0E0E0 !important;
-            }
-            div[data-testid="column"]:nth-child(3) button:hover {
-                background-color: rgba(255, 255, 255, 0.1) !important;
-            }
-        </style>
-    """, unsafe_allow_html=True)
+        st.markdown("""
+            <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
+                <a href="/?login=true" target="_self" style="background-color: white; color: black; border-radius: 50px; padding: 8px 24px; font-weight: 600; text-decoration: none; font-size: 15px; border: 1px solid white; transition: 0.2s;">Log in</a>
+                <a href="/?login=true" target="_self" style="background-color: transparent; color: white; border-radius: 50px; padding: 8px 24px; font-weight: 600; text-decoration: none; font-size: 15px; border: 1px solid rgba(255,255,255,0.3); transition: 0.2s;">Sign up for free</a>
+            </div>
+        """, unsafe_allow_html=True)
 
 # Process deferred actions OUTSIDE the popover
 if st.session_state.get("pending_rename"):
