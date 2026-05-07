@@ -1086,6 +1086,7 @@ with st.sidebar:
     # 2. RECENTS (Chat History)
     st.markdown("### Recents")
     
+    all_chats = []
     if not st.session_state.is_logged_in:
         st.caption("Sign up to save your chat history.")
         visible_chats = []
