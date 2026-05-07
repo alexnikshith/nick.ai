@@ -350,10 +350,10 @@ st.markdown("""
         color: #00F2FF !important;
     }
     [data-testid="stSidebar"] [data-testid="stPopoverBody"] * {
-        font-size: 1.1rem !important;
+        font-size: 1.2rem !important;
     }
     [data-testid="stSidebar"] [data-testid="stPopoverBody"] h5 {
-        font-size: 1.2rem !important;
+        font-size: 1.3rem !important;
         margin-bottom: 0.5rem !important;
     }
     /* Compact Popovers in Sidebar */
@@ -391,7 +391,7 @@ st.markdown("""
         border-radius: 0.5rem;
         color: #A0A0A0;
         width: 100%;
-        font-size: 1.1rem; /* Aggressive boost */
+        font-size: 1.2rem; /* MAX Visibility */
         font-weight: 500;
         display: flex;
         justify-content: flex-start;
@@ -456,7 +456,7 @@ st.markdown("""
 /* Recents Header */
     div[data-testid="stSidebar"] h3 {
         color: #4D4D4D;
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
@@ -556,7 +556,7 @@ st.markdown("""
         border: none !important;
         box-shadow: none !important;
         color: #FFFFFF !important;
-        font-size: 1.15rem !important;
+        font-size: 1.25rem !important;
         font-family: 'Inter', sans-serif !important;
         padding: 0.85rem 3.5rem 0.85rem 1.2rem !important;
         resize: none !important;
@@ -739,8 +739,8 @@ st.markdown("""
     [data-testid="stChatMessageContent"] p,
     [data-testid="stChatMessageContent"] li,
     [data-testid="stMarkdownContainer"] p {
-        font-size: 1.15rem !important;
-        line-height: 1.7 !important;
+        font-size: 1.25rem !important;
+        line-height: 1.8 !important;
     }
 </style>
 """, unsafe_allow_html=True)
