@@ -1274,9 +1274,9 @@ else:
     ui_col1, ui_col2 = st.columns([0.65, 0.35])
     with ui_col2:
         st.markdown("""
-            <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
-                <a href="/?login=true" target="_self" style="background-color: white; color: black; border-radius: 50px; padding: 8px 24px; font-weight: 600; text-decoration: none; font-size: 15px; border: 1px solid white; transition: 0.2s;">Log in</a>
-                <a href="/?login=true" target="_self" style="background-color: transparent; color: white; border-radius: 50px; padding: 8px 24px; font-weight: 600; text-decoration: none; font-size: 15px; border: 1px solid rgba(255,255,255,0.3); transition: 0.2s;">Sign up for free</a>
+            <div style="display: flex; gap: 14px; justify-content: flex-end; align-items: center;">
+                <a href="/?login=true" target="_self" style="background-color: white !important; color: black !important; border-radius: 50px; padding: 10px 28px; font-weight: 600; text-decoration: none !important; font-size: 16px; border: 1px solid white !important; transition: 0.2s;">Log in</a>
+                <a href="/?login=true" target="_self" style="background-color: transparent !important; color: white !important; border-radius: 50px; padding: 10px 28px; font-weight: 600; text-decoration: none !important; font-size: 16px; border: 1px solid rgba(255,255,255,0.4) !important; transition: 0.2s;">Sign up for free</a>
             </div>
         """, unsafe_allow_html=True)
 
