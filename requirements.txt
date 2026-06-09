@@ -1,4 +1,4 @@
-streamlit
+streamlit==1.45.1
 openai
 python-dotenv
 duckduckgo-search
@@ -11,4 +11,4 @@ groq
 pytz
 tavily-python
 googlesearch-python
-Authlib>=1.3.2
+Authlib==1.3.2
