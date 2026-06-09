@@ -268,7 +268,7 @@ def auth_dialog(limit_reached=False):
             st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>You'll get smarter responses and can upload files, images, and more.</div>", unsafe_allow_html=True)
 
         if st.button("🇬 Continue with Google", use_container_width=True):
-            if hasattr(st.user, "is_logged_in"):
+            if "auth" in st.secrets:
                 st.login("google")
             else:
                 st.session_state.auth_provider = "Google"
@@ -302,6 +302,8 @@ def auth_dialog(limit_reached=False):
 
     elif st.session_state.auth_step == "oauth_account":
         st.markdown(f"#### Sign in with {st.session_state.auth_provider}")
+        if st.session_state.auth_provider == "Google" and "auth" not in st.secrets:
+            st.warning("⚠️ Google OAuth is not configured on your server/local secrets! Please add the `[auth]` block to your Streamlit Cloud secrets to enable real Google OAuth.")
         st.markdown(f"<p style='color: #A0A0A0; font-size: 14px;'>Choose an account to continue to nick.ai</p>", unsafe_allow_html=True)
         
         # Simulating account picker
