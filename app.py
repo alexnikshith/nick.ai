@@ -203,8 +203,21 @@ def get_base64_image(image_path):
 st.set_page_config(page_title="Local AI ChatGPT Clone", page_icon="⚡", layout="wide", initial_sidebar_state="expanded")
 
 # --- INITIALIZE SESSION STATE ---
+# Temporary Debug Info (Will remove after fixing)
+if st.sidebar.checkbox("🔍 Debug OAuth"):
+    st.sidebar.write("### OAuth Debugging")
+    st.sidebar.write("**st.user is_logged_in:**", getattr(st.user, "is_logged_in", "Attribute Missing"))
+    st.sidebar.write("**st.user:**", str(st.user))
+    st.sidebar.write("**st.secrets keys:**", list(st.secrets.keys()))
+    if "auth" in st.secrets:
+        st.sidebar.write("**st.secrets['auth'] keys:**", list(st.secrets["auth"].keys()))
+        if "google" in st.secrets["auth"]:
+            st.sidebar.write("**st.secrets['auth']['google'] keys:**", list(st.secrets["auth"]["google"].keys()))
+    st.sidebar.write("**Query params:**", dict(st.query_params))
+
 # Sync Google OAuth session if available
 if hasattr(st.user, "is_logged_in") and st.user.is_logged_in:
+
     st.session_state.is_logged_in = True
     st.session_state.user_email = st.user.email
     st.session_state.show_limit_dialog = False
