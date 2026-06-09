@@ -203,6 +203,16 @@ def get_base64_image(image_path):
 st.set_page_config(page_title="Local AI ChatGPT Clone", page_icon="⚡", layout="wide", initial_sidebar_state="expanded")
 
 # --- INITIALIZE SESSION STATE ---
+# Sync Google OAuth session if available
+if hasattr(st.user, "is_logged_in") and st.user.is_logged_in:
+    st.session_state.is_logged_in = True
+    st.session_state.user_email = st.user.email
+    user_info = st.user.to_dict()
+    if "user_display_name" not in st.session_state or st.session_state.user_display_name in ("Nikshith Gurram", "Guest"):
+        st.session_state.user_display_name = user_info.get("name", st.user.email.split('@')[0].capitalize())
+    if "user_username" not in st.session_state or st.session_state.user_username == "nikshithgurram2006":
+        st.session_state.user_username = user_info.get("preferred_username", st.user.email.split('@')[0])
+
 if "is_logged_in" not in st.session_state:
     st.session_state.is_logged_in = False
     st.session_state.user_email = ""
@@ -258,9 +268,12 @@ def auth_dialog(limit_reached=False):
             st.markdown("<div style='text-align: center; color: #A0A0A0; margin-bottom: 20px; font-size: 15px;'>You'll get smarter responses and can upload files, images, and more.</div>", unsafe_allow_html=True)
 
         if st.button("🇬 Continue with Google", use_container_width=True):
-            st.session_state.auth_provider = "Google"
-            st.session_state.auth_step = "oauth_account"
-            st.rerun()
+            if hasattr(st.user, "is_logged_in"):
+                st.login("google")
+            else:
+                st.session_state.auth_provider = "Google"
+                st.session_state.auth_step = "oauth_account"
+                st.rerun()
         if st.button("🍎 Continue with Apple", use_container_width=True):
             st.session_state.auth_provider = "Apple"
             st.session_state.auth_step = "oauth_account"
@@ -1334,7 +1347,10 @@ with st.sidebar:
                 st.session_state.user_display_name = "Nikshith Gurram"
                 st.session_state.user_username = "nikshithgurram2006"
                 st.session_state.show_auth_dialog_manual = True
-                st.rerun()
+                if hasattr(st.user, "is_logged_in") and st.user.is_logged_in:
+                    st.logout()
+                else:
+                    st.rerun()
 
 # --- MAIN CHAT UI ---
 st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
