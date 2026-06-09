@@ -207,11 +207,16 @@ st.set_page_config(page_title="Local AI ChatGPT Clone", page_icon="⚡", layout=
 if hasattr(st.user, "is_logged_in") and st.user.is_logged_in:
     st.session_state.is_logged_in = True
     st.session_state.user_email = st.user.email
+    st.session_state.show_limit_dialog = False
+    st.session_state.show_auth_dialog_manual = False
+    if "auth_step" in st.session_state:
+        st.session_state.auth_step = "select"
     user_info = st.user.to_dict()
     if "user_display_name" not in st.session_state or st.session_state.user_display_name in ("Nikshith Gurram", "Guest"):
         st.session_state.user_display_name = user_info.get("name", st.user.email.split('@')[0].capitalize())
     if "user_username" not in st.session_state or st.session_state.user_username == "nikshithgurram2006":
         st.session_state.user_username = user_info.get("preferred_username", st.user.email.split('@')[0])
+
 
 if "is_logged_in" not in st.session_state:
     st.session_state.is_logged_in = False
@@ -384,10 +389,15 @@ def auth_dialog(limit_reached=False):
                 else:
                     st.error("Invalid code. Please enter any 6 digits.")
 
-if st.session_state.show_limit_dialog:
-    auth_dialog(limit_reached=True)
-if st.session_state.show_auth_dialog_manual:
-    auth_dialog(limit_reached=False)
+if st.session_state.is_logged_in:
+    st.session_state.show_limit_dialog = False
+    st.session_state.show_auth_dialog_manual = False
+else:
+    if st.session_state.show_limit_dialog:
+        auth_dialog(limit_reached=True)
+    if st.session_state.show_auth_dialog_manual:
+        auth_dialog(limit_reached=False)
+
 
 # Initialize settings from local memory if available
 saved_prefs = load_user_settings()
