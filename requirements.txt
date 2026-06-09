@@ -11,3 +11,4 @@ groq
 pytz
 tavily-python
 googlesearch-python
+Authlib>=1.3.2
