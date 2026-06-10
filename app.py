@@ -1265,47 +1265,50 @@ with st.sidebar:
                     st.rerun()
         
         with c2:
-            with st.popover("⋮", key=f"menu_{chat['id']}"):
-                st.markdown("**Options**")
-                
-                # 1. Rename
-                new_name = st.text_input("Name", value=chat['title'], key=f"ren_{chat['id']}", label_visibility="collapsed")
-                if st.button("Save", key=f"save_{chat['id']}", use_container_width=True):
-                    save_chat(chat['id'], new_name, chat['messages'], project=chat.get('project', 'General'), pinned=is_pinned)
-                    if st.session_state.current_chat_id == chat['id']:
-                        st.session_state.chat_title = new_name
-                    st.rerun()
+            try:
+                with st.popover("⋮", key=f"menu_{chat['id']}"):
+                    st.markdown("**Options**")
+                    
+                    # 1. Rename
+                    new_name = st.text_input("Name", value=chat['title'], key=f"ren_{chat['id']}", label_visibility="collapsed")
+                    if st.button("Save", key=f"save_{chat['id']}", use_container_width=True):
+                        save_chat(chat['id'], new_name, chat['messages'], project=chat.get('project', 'General'), pinned=is_pinned)
+                        if st.session_state.current_chat_id == chat['id']:
+                            st.session_state.chat_title = new_name
+                        st.rerun()
 
-                # 1.5 Pin/Unpin
-                pin_label = "Unpin Chat" if is_pinned else "Pin Chat"
-                if st.button(pin_label, key=f"pin_{chat['id']}", use_container_width=True):
-                    new_pin_state = not is_pinned
-                    # Pass the EXISTING timestamp so it doesn't jump to the top unless you want it to
-                    save_chat(chat['id'], chat['title'], chat['messages'], 
-                              project=chat.get('project', 'General'), 
-                              pinned=new_pin_state,
-                              updated_at=chat.get('updated_at'))
-                    if st.session_state.current_chat_id == chat['id']:
-                        st.session_state.chat_pinned = new_pin_state
-                    st.rerun()
-                
-                # 2. Share
-                share_url = f"http://localhost:8501/?share={chat['id']}"
-                if st.button("🔗 Share Chat", key=f"share_btn_{chat['id']}", use_container_width=True):
-                    st.session_state[f"show_link_{chat['id']}"] = True
-                
-                if st.session_state.get(f"show_link_{chat['id']}", False):
-                    st.code(share_url, language=None)
-                    st.caption("Anyone with this link can view the chat.")
-                
-                # 3. Delete
-                if st.button("Delete", key=f"del_{chat['id']}", use_container_width=True):
-                    delete_chat(chat['id'])
-                    if st.session_state.current_chat_id == chat['id']:
-                        st.session_state.current_chat_id = str(uuid.uuid4())
-                        st.session_state.chat_title = "New chat"
-                        st.session_state.messages = []
-                    st.rerun()
+                    # 1.5 Pin/Unpin
+                    pin_label = "Unpin Chat" if is_pinned else "Pin Chat"
+                    if st.button(pin_label, key=f"pin_{chat['id']}", use_container_width=True):
+                        new_pin_state = not is_pinned
+                        # Pass the EXISTING timestamp so it doesn't jump to the top unless you want it to
+                        save_chat(chat['id'], chat['title'], chat['messages'], 
+                                  project=chat.get('project', 'General'), 
+                                  pinned=new_pin_state,
+                                  updated_at=chat.get('updated_at'))
+                        if st.session_state.current_chat_id == chat['id']:
+                            st.session_state.chat_pinned = new_pin_state
+                        st.rerun()
+                    
+                    # 2. Share
+                    share_url = f"http://localhost:8501/?share={chat['id']}"
+                    if st.button("🔗 Share Chat", key=f"share_btn_{chat['id']}", use_container_width=True):
+                        st.session_state[f"show_link_{chat['id']}"] = True
+                    
+                    if st.session_state.get(f"show_link_{chat['id']}", False):
+                        st.code(share_url, language=None)
+                        st.caption("Anyone with this link can view the chat.")
+                    
+                    # 3. Delete
+                    if st.button("Delete", key=f"del_{chat['id']}", use_container_width=True):
+                        delete_chat(chat['id'])
+                        if st.session_state.current_chat_id == chat['id']:
+                            st.session_state.current_chat_id = str(uuid.uuid4())
+                            st.session_state.chat_title = "New chat"
+                            st.session_state.messages = []
+                        st.rerun()
+            except Exception as e:
+                st.exception(e)
                     
     # Pagination Controls
     if len(all_chats) > 10:
